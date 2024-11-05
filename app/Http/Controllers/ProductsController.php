@@ -10,7 +10,7 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        return view('products.index');
+        return view('index');
     }
 
     public function getProducts()
@@ -22,7 +22,7 @@ class ProductsController extends Controller
 
     public function create()
     {
-        return view('products.index');
+        return view('index');
     }
 
     public function store(Request $request)
@@ -52,7 +52,7 @@ class ProductsController extends Controller
 
     public function edit()
     {
-        return view('products.index');
+        return view('index');
     }
 
     public function getProduct($id)
@@ -84,6 +84,6 @@ class ProductsController extends Controller
             ]);
         }
 
-        return view('products.index');
+        return view('index');
     }
 }

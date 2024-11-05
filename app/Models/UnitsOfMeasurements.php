@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UnitsOfMeasurements extends Model
 {
 //    use HasFactory;
+    public $timestamps = false;
     protected $fillable = ['name'];
 
     public function products()

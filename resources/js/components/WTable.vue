@@ -3,9 +3,9 @@ import {ref} from "vue";
 
 const props = defineProps({
     title: String,
-    addName: String,
+    btnIcon: String,
     headers: Array,
-    products: Array,
+    items: Array,
     editedItem: Object,
 });
 
@@ -23,7 +23,8 @@ function closeDelete() {
 
 function deleteItem(item) {
     if (item.id) {
-        editedIndex.value = props.products.indexOf(item);
+        console.log()
+        editedIndex.value = props.items.indexOf(item);
         Object.assign(props.editedItem, item)
         dialogDelete.value = true
     }
@@ -35,7 +36,7 @@ function deleteItem(item) {
 <template>
     <v-data-table
         :headers="headers"
-        :items="products"
+        :items="items"
         :items-per-page-text="'Строк на странице:'"
         class="elevation-1"
         :items-per-page-options="[
@@ -70,8 +71,8 @@ function deleteItem(item) {
                     color="primary"
                     dark
                     @click="emit('add-item')">
-                    Добавить {{ addName }}
-                    <v-icon right>mdi-cart-plus</v-icon>
+                    Добавить
+                    <v-icon class="ml-1" right>{{ btnIcon }}</v-icon>
                 </v-btn>
                 <v-dialog v-model="dialogDelete" max-width="500px">
                     <v-card>

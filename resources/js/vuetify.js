@@ -8,6 +8,24 @@ const vuetify = createVuetify({
     icons: {
       defaultSet: 'mdi',
     },
+    theme: {
+        options: {
+            customProperties: true,
+        },
+        themes: {
+            light: {
+                colors: {
+                    primary: '#9155FD', // основной цвет
+                    secondary: '#8A8D93', // второстепенный цвет
+                    accent: '#0d6efd',
+                    success: '#56CA00',
+                    info: '#16B1FF',
+                    warning: '#FFB400',
+                    error: '#FF4C51',
+                },
+            },
+        },
+    },
     components,
     directives,
 });

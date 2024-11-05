@@ -1,45 +1,47 @@
 <script setup>
+import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 
-let products = ref([]);
+const measuringUnits = ref([]);
 
-let headers = ref([
+const alertMessage = ref("");
+const alertType = ref("");
+
+const dialogDelete = ref(false)
+
+const headers = ref([
     {title: "Код", value: "id", sortable: true},
     {title: "Наименование", value: "name", sortable: true},
-    {title: "Единицы измерения", value: "measuring_unit_name", sortable: true},
-    {title: "Остатки", value: "residue", sortable: true},
     {title: "Действия", value: "actions"},
-]);
+])
 
 const editedItem = ref({
     id: 0,
     name: "",
-    measuring_unit_name: "",
-    residue: 0,
 })
 
-const dialogDelete = ref(false)
-const alertMessage = ref('')
-const alertType = ref('')
-
 onMounted(() => {
-    axios.get("/api/products")
+    axios.get("/api/measuring_units")
         .then(response => {
-            products.value = response.data;
+            measuringUnits.value = response.data
         })
-        .catch(e => {
-            console.log(e);
-        })
-});
+})
 
+function addItem() {
+    router.push("/measuring_units/create")
+}
+
+function editItem(item) {
+    router.push(`/measuring_units/${item.id}/edit`)
+}
 
 function deleteItemConfirm(id) {
-    axios.delete(`/products/${id}`)
+    axios.delete(`/measuring_units/${id}`)
         .then(response => {
             dialogDelete.value = false;
-            products.value = products.value.filter(product => product.id !== id)
-            alertMessage.value = "Товар удален.";
+            measuringUnits.value = measuringUnits.value.filter(measuringUnit => measuringUnit.id !== id);
+            alertMessage.value = "Единица измерения удалена.";
             alertType.value = "success";
         })
         .catch(error => {
@@ -47,24 +49,16 @@ function deleteItemConfirm(id) {
             alertType.value = "error";
         });
 }
-
-function addItem() {
-    router.push("/products/create");
-}
-
-function editItem(item) {
-    router.push(`/products/${item.id}/edit`)
-}
 </script>
 
 <template>
     <w-table
+        title="Единицы измерения"
+        btn-icon="mdi-beaker-plus-outline"
         :headers="headers"
-        :items="products"
-        :editedItem="editedItem"
+        :items="measuringUnits"
+        :edited-item="editedItem"
         v-model="dialogDelete"
-        title="Товары"
-        btn-icon="mdi-cart-plus"
         @add-item="addItem"
         @edit-item="editItem"
         @delete-item-confirm="deleteItemConfirm">
@@ -78,3 +72,7 @@ function editItem(item) {
         max-width="500">
     </v-alert>
 </template>
+
+<style scoped>
+
+</style>
