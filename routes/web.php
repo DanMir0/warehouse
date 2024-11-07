@@ -4,6 +4,7 @@ use App\Http\Controllers\ProductsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UnitsOfMeasurementsController;
 use \App\Http\Controllers\OrderStatusController;
+use App\Http\Controllers\DocumentTypeController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -17,6 +18,10 @@ Route::resource('/measuring_units', UnitsOfMeasurementsController::class);
 Route::get('/api/order_statuses', [OrderStatusController::class, 'getOrderStatuses'])->name('getOrderStatuses');
 Route::get('/api/order_statuses/{id}', [OrderStatusController::class, 'getOrderStatus'])->name('getOrderStatus');
 Route::resource('/order_statuses', OrderStatusController::class);
+
+Route::get('/api/document_types', [DocumentTypeController::class, 'getDocumentTypes'])->name('getDocumentTypes');
+Route::get('/api/document_types/{id}', [DocumentTypeController::class, 'getDocumentType'])->name('getDocumentType');
+Route::resource('/document_types', DocumentTypeController::class);
 
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue

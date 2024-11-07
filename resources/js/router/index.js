@@ -5,6 +5,8 @@ import MeasuringUnits from "../pages/MeasuringUnits.vue";
 import MeasuringUnit from "../pages/MeasuringUnit.vue";
 import OrderStatuses from "../pages/OrderStatuses.vue";
 import OrderStatus from "../pages/OrderStatus.vue";
+import DocumentTypes from "../pages/DocumentTypes.vue";
+import DocumentType from "../pages/DocumentType.vue";
 
 const routes = [
     {
@@ -13,6 +15,7 @@ const routes = [
     },
     {
         path: "/products",
+
         component: Products
     },
     {
@@ -51,6 +54,20 @@ const routes = [
     {
         path: "/order_statuses/:id/edit",
         component: OrderStatus,
+        props: true,
+    },
+    {
+        path: "/document_types",
+        component: DocumentTypes,
+    },
+    {
+        path: "/document_types/create",
+        component: DocumentType,
+        props: true,
+    },
+    {
+        path: "/document_types/:id/edit",
+        component: DocumentType,
         props: true,
     },
 ]
