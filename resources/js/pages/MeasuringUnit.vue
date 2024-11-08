@@ -5,7 +5,7 @@ import router from "../router/index.js";
 
 const route = useRoute();
 
-const measuring_unit = ref()
+const measuringUnit = ref()
 
 const entity = ref({
     id: null,
@@ -31,9 +31,9 @@ onMounted(() => {
     if (route.params.id) {
         axios.get(`/api/measuring_units/${route.params.id}`)
             .then(response => {
-                measuring_unit.value = response.data
+                measuringUnit.value = response.data
                 console.log(response.data)
-                entity.value = {...measuring_unit.value}
+                entity.value = {...measuringUnit.value}
             })
             .catch(error => {
                 alertMessage.value = error.message;
@@ -43,7 +43,7 @@ onMounted(() => {
 })
 
 function back() {
-    router.back()
+    router.back();
 }
 
 function save() {

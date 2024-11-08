@@ -8,7 +8,7 @@ const alertType = ref('');
 
 const route = useRoute();
 
-const order_status = ref([])
+const orderStatus = ref([])
 
 const entity = ref({
     name: null,
@@ -54,8 +54,8 @@ onMounted(() => {
     if (route.params.id) {
         axios.get(`/api/order_statuses/${route.params.id}`)
             .then(response => {
-                order_status.value = response.data;
-                entity.value = {...order_status.value};
+                orderStatus.value = response.data;
+                entity.value = {...orderStatus.value};
             })
             .catch(error => {
                 alertMessage.value = error.message;
