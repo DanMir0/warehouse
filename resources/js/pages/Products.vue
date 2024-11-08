@@ -78,3 +78,13 @@ function editItem(item) {
         max-width="500">
     </v-alert>
 </template>
+
+<style scoped>
+.alert {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    border-radius: 50% 20% / 10% 40%;
+}
+</style>

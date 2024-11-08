@@ -52,6 +52,14 @@ function deleteItemConfirm(id) {
 </script>
 
 <template>
+    <v-alert
+        v-show="alertMessage"
+        class="alert"
+        :title="alertMessage"
+        :type="alertType"
+        closable
+        max-width="500">
+    </v-alert>
     <w-table
         title="Единицы измерения"
         btn-icon="mdi-beaker-plus-outline"
@@ -63,16 +71,14 @@ function deleteItemConfirm(id) {
         @edit-item="editItem"
         @delete-item-confirm="deleteItemConfirm">
     </w-table>
-    <v-alert
-        v-show="alertMessage"
-        class="alert"
-        :title="alertMessage"
-        :type="alertType"
-        closable
-        max-width="500">
-    </v-alert>
 </template>
 
 <style scoped>
-
+.alert {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    border-radius: 50% 20% / 10% 40%;
+}
 </style>

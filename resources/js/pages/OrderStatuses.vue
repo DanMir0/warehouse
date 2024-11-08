@@ -76,6 +76,7 @@ function deleteItemConfirm(id) {
 
 <style scoped>
 .alert {
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
