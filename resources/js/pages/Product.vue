@@ -18,7 +18,7 @@ const alertType = ref('');
 const unitsOfMeasuring = ref([]);
 
 onMounted(() => {
-    axios.get("/api/units").then(response => {
+    axios.get("/api/measuring_units").then(response => {
         unitsOfMeasuring.value = response.data;
     })
         .catch(e => {

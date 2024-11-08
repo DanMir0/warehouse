@@ -58,6 +58,14 @@ function editItem(item) {
 </script>
 
 <template>
+    <v-alert
+        v-show="alertMessage"
+        class="alert"
+        :title="alertMessage"
+        :type="alertType"
+        closable
+        max-width="500">
+    </v-alert>
     <w-table
         :headers="headers"
         :items="products"
@@ -69,14 +77,6 @@ function editItem(item) {
         @edit-item="editItem"
         @delete-item-confirm="deleteItemConfirm">
     </w-table>
-    <v-alert
-        v-show="alertMessage"
-        class="alert"
-        :title="alertMessage"
-        :type="alertType"
-        closable
-        max-width="500">
-    </v-alert>
 </template>
 
 <style scoped>
