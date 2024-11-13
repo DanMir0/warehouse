@@ -40,7 +40,7 @@ function save() {
     if (route.params.id) {
         axios.put(`/document_types/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Тип документа добавлен"
+                alertMessage.value = "Тип документа изменен"
                 alertType.value = "success"
             })
             .catch(error => {
