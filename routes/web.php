@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UnitsOfMeasurementsController;
 use \App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\CounterpartiesController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -22,6 +23,10 @@ Route::resource('/order_statuses', OrderStatusController::class);
 Route::get('/api/document_types', [DocumentTypeController::class, 'getDocumentTypes'])->name('getDocumentTypes');
 Route::get('/api/document_types/{id}', [DocumentTypeController::class, 'getDocumentType'])->name('getDocumentType');
 Route::resource('/document_types', DocumentTypeController::class);
+
+Route::get('/api/counterparties', [CounterpartiesController::class, 'getCounterparties'])->name('getCounterparties');
+Route::get('/api/counterparties/{id}', [CounterpartiesController::class, 'getCounterparty'])->name('getCounterparty');
+Route::resource('/counterparties', CounterpartiesController::class);
 
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue

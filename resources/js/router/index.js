@@ -7,6 +7,8 @@ import OrderStatuses from "../pages/OrderStatuses.vue";
 import OrderStatus from "../pages/OrderStatus.vue";
 import DocumentTypes from "../pages/DocumentTypes.vue";
 import DocumentType from "../pages/DocumentType.vue";
+import Counterparties from "@/pages/Counterparties.vue";
+import Counterparty from "@/pages/Counterparty.vue";
 
 const routes = [
     {
@@ -68,6 +70,20 @@ const routes = [
     {
         path: "/document_types/:id/edit",
         component: DocumentType,
+        props: true,
+    },
+    {
+        path: "/counterparties",
+        component: Counterparties,
+    },
+    {
+        path: "/counterparties/create",
+        component: Counterparty,
+        props: true,
+    },
+    {
+        path: "/counterparties/:id/edit",
+        component: Counterparty,
         props: true,
     },
 ]
