@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Counterparties;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CounterpartiesController extends Controller
 {
@@ -21,11 +22,11 @@ class CounterpartiesController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|min:3|unique:counterparties,name',
             'contact_info' => 'required|regex:/^\+7[0-9]{10}$/',
-            'address' => 'required|string',
+            'address' => 'required|string|min:5',
             'inn' => 'required|numeric|digits:10',
-            'contact_persons' => 'required|string',
+            'contact_persons' => 'required|string|regex:/^[^\d]+$/',
         ]);
 
         $counterparty = new Counterparties([
@@ -58,11 +59,11 @@ class CounterpartiesController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', 'min:3', Rule::unique('counterparties', 'name')->ignore($id)],
             'contact_info' => ['required', 'regex:/^\+7[0-9]{10}$/'],
-            'address' => ['required', 'string'],
+            'address' => ['required', 'string', 'min:5'],
             'inn' => ['required', 'numeric', 'digits:10'],
-            'contact_persons' => ['required', 'string'],
+            'contact_persons' => ['required', 'string', 'regex:/^[^\d]+$/'],
         ]);
 
         $counterparty = Counterparties::find($id);

@@ -41,6 +41,9 @@ function save() {
                 alertType.value = "success";
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value =  {...error.response.data.errors};
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             })
@@ -53,7 +56,6 @@ function save() {
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value =  {...error.response.data.errors};
-                    console.log('validation', errors.value)
                 }
                 alertMessage.value = error.message;
                 alertType.value = "error";
