@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OrderStatus;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OrderStatusController extends Controller
 {
@@ -20,7 +21,7 @@ class OrderStatusController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|unique:order_statuses,name',
         ]);
 
         $order_status = new OrderStatus([
@@ -44,7 +45,7 @@ class OrderStatusController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', Rule::unique('order_statuses', 'name')->ignore($id)],
         ]);
 
         $order_status = OrderStatus::find($id);

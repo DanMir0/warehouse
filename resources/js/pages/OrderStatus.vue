@@ -5,6 +5,7 @@ import router from "../router/index.js";
 
 const alertMessage = ref('');
 const alertType = ref('');
+const errors = ref({});
 
 const route = useRoute();
 
@@ -27,6 +28,9 @@ const formTitle = computed(() => {
 })
 
 function save() {
+    errors.value = {};
+    alertMessage.value = '';
+
     if (route.params.id) {
         axios.put(`/order_statuses/${route.params.id}`, entity.value)
             .then(response => {
@@ -34,6 +38,9 @@ function save() {
                 alertType.value = "success";
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             })
@@ -44,6 +51,9 @@ function save() {
                 alertType.value = "success";
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             })
@@ -92,15 +102,16 @@ function back() {
                             <v-text-field
                                 disabled
                                 v-model="route.params.id"
-                                label="Код"
-                            ></v-text-field>
+                                label="Код">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
                                 :rules="rules"
-                            ></v-text-field>
+                                :error-messages="errors.name">
+                            </v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
