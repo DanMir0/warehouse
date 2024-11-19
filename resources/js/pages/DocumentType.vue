@@ -9,6 +9,7 @@ const documentType = ref();
 
 const alertMessage = ref('');
 const alertType = ref('');
+const errors = ref({})
 
 const entity = ref({
     name: null,
@@ -44,6 +45,9 @@ function save() {
                 alertType.value = "success"
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             })
@@ -54,6 +58,9 @@ function save() {
                 alertType.value = "success"
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             })
@@ -106,7 +113,8 @@ onMounted(() => {
                                 v-model="entity.name"
                                 label="Наименование"
                                 :rules="rules"
-                            ></v-text-field>
+                                :error-messages="errors.name">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-select
@@ -115,7 +123,8 @@ onMounted(() => {
                                 :rules="rules"
                                 label="Выберите тип документа"
                                 item-title="name"
-                                item-value="value">
+                                item-value="value"
+                                :error-messages="errors.in_out">
                             </v-select>
                         </v-col>
                     </v-row>

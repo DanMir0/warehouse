@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DocumentTypeController extends Controller
 {
@@ -20,7 +21,7 @@ class DocumentTypeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|unique:document_types,name',
             'in_out' => 'required',
         ]);
 
@@ -46,7 +47,7 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', Rule::unique('document_types', 'name')->ignore($id)],
             'in_out' => ['required', 'string'],
         ]);
 
