@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use function Laravel\Prompts\select;
 
 class ProductsController extends Controller
@@ -28,8 +29,8 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'measuring_unit_id' => 'required'
+            'name' => 'required|string|unique:products,name',
+            'measuring_unit_id' => 'required|integer'
         ]);
 
         $product = new Products([
@@ -71,7 +72,7 @@ class ProductsController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', Rule::unique('products', 'name')->ignore($id)],
             'measuring_unit_id' => ['required', 'integer'],
         ]);
 

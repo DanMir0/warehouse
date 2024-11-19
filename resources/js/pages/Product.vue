@@ -14,6 +14,7 @@ const entity = ref({
 
 const alertMessage = ref('');
 const alertType = ref('');
+const errors = ref({});
 
 const unitsOfMeasuring = ref([]);
 
@@ -47,6 +48,9 @@ function save() {
                 alertType.value = "success";
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             });
@@ -57,6 +61,9 @@ function save() {
                 alertType.value = "success";
             })
             .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    errors.value = {...error.response.data.errors}
+                }
                 alertMessage.value = error.message;
                 alertType.value = "error";
             });
@@ -113,13 +120,15 @@ const formTitle = computed(() => {
                                 v-model="entity.name"
                                 label="Наименование"
                                 :rules="rules"
-                            ></v-text-field>
+                                :error-messages="errors.name">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-select
                                 v-model="entity.measuring_unit_id"
                                 :items="unitsOfMeasuring"
                                 :rules="rules"
+                                :error-messages="errors.measuring_unit_id"
                                 label="Выберите едину измерения"
                                 item-title="name"
                                 item-value="id">
