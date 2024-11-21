@@ -18,6 +18,8 @@ const entity = ref({
     address: null,
     inn: null,
     contact_persons: null,
+    created_at: null,
+    updated_at: null,
 });
 
 const requiredRule = value => !!value || "Поле обязательное.";
@@ -33,6 +35,7 @@ function back() {
 
 function save() {
     errors.value = {};
+    alertMessage.value = '';
 
     if (route.params.id) {
         axios.put(`/counterparties/${route.params.id}`, entity.value)
@@ -61,6 +64,12 @@ function save() {
                 alertType.value = "error";
             })
     }
+}
+
+function formatDate(date) {
+    if (!date) return "";
+    const parsedDate = new Date(date);
+    return  parsedDate.toLocaleDateString('ru-RU');
 }
 
 onMounted(() => {
@@ -142,6 +151,22 @@ onMounted(() => {
                                 label="Контактное лицо"
                                 :rules="[requiredRule]"
                                 :error-messages="errors.contact_persons || []"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                            <v-text-field
+                                disabled
+                                :model-value="formatDate(entity.created_at)"
+                                label="ДД.ММ.ГГГГ"
+                                :rules="[requiredRule]"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                            <v-text-field
+                                disabled
+                                :model-value="formatDate(entity.updated_at)"
+                                label="ДД.ММ.ГГГГ"
+                                :rules="[requiredRule]"
                             ></v-text-field>
                         </v-col>
                     </v-row>
