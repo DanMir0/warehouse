@@ -68,8 +68,7 @@ function save() {
 
 function formatDate(date) {
     if (!date) return "";
-    const parsedDate = new Date(date);
-    return  parsedDate.toLocaleDateString('ru-RU');
+    return new Date(date).toISOString().split('T')[0];
 }
 
 onMounted(() => {
@@ -156,16 +155,18 @@ onMounted(() => {
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
                                 disabled
+                                type="date"
                                 :model-value="formatDate(entity.created_at)"
-                                label="ДД.ММ.ГГГГ"
+                                label="Дата создания"
                                 :rules="[requiredRule]"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
                                 disabled
+                                type="date"
                                 :model-value="formatDate(entity.updated_at)"
-                                label="ДД.ММ.ГГГГ"
+                                label="Обновленная дата"
                                 :rules="[requiredRule]"
                             ></v-text-field>
                         </v-col>
