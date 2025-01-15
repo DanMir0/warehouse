@@ -2,7 +2,7 @@
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
-
+import {en} from "vuetify/locale";
 
 const route = useRoute();
 
@@ -71,6 +71,23 @@ function formatDate(date) {
     return new Date(date).toISOString().split('T')[0];
 }
 
+function formatPhone(event) {
+    let value = event.target.value.replace(/\D/g, "")
+    if (value.startsWith("7")) {
+        value = "+" + value
+    } else {
+        value = "+7" + value;
+    }
+
+    if (value.length > 2) value = value.slice(0, 2) + " (" + value.slice(2);
+    if (value.length > 7) value = value.slice(0, 7) + ") " + value.slice(7);
+    if (value.length > 12) value = value.slice(0, 12) + "-" + value.slice(12);
+    if (value.length > 15) value = value.slice(0, 15) + "-" + value.slice(15);
+    if (value.length > 18) value = value.slice(0, 18);
+
+    entity.value.contact_info = value;
+}
+
 onMounted(() => {
     if (route.params.id) {
         axios.get(`/api/counterparties/${route.params.id}`)
@@ -117,24 +134,26 @@ onMounted(() => {
                                 v-model="entity.name"
                                 label="Наименование"
                                 :rules="[requiredRule]"
-                                :error-messages="errors.name || []"
-                            ></v-text-field>
+                                :error-messages="errors.name || []">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
+                                type="tel"
                                 v-model="entity.contact_info"
                                 label="Контактная информация"
                                 :rules="[requiredRule]"
                                 :error-messages="errors.contact_info || []"
-                            ></v-text-field>
+                                @input="formatPhone">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
                                 v-model="entity.address"
                                 label="Адресс"
                                 :rules="[requiredRule]"
-                                :error-messages="errors.address || []"
-                            ></v-text-field>
+                                :error-messages="errors.address || []">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
@@ -142,15 +161,16 @@ onMounted(() => {
                                 label="ИНН"
                                 :rules="[requiredRule, innRule]"
                                 :error-messages="errors.inn || []"
-                            ></v-text-field>
+                                @input="entity.inn = entity.inn.replace(/\D/g, '').slice(0, 10)">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
                                 v-model="entity.contact_persons"
                                 label="Контактное лицо"
                                 :rules="[requiredRule]"
-                                :error-messages="errors.contact_persons || []"
-                            ></v-text-field>
+                                :error-messages="errors.contact_persons || []">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
@@ -158,8 +178,8 @@ onMounted(() => {
                                 type="date"
                                 :model-value="formatDate(entity.created_at)"
                                 label="Дата создания"
-                                :rules="[requiredRule]"
-                            ></v-text-field>
+                                :rules="[requiredRule]">
+                            </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-text-field
@@ -167,8 +187,8 @@ onMounted(() => {
                                 type="date"
                                 :model-value="formatDate(entity.updated_at)"
                                 label="Обновленная дата"
-                                :rules="[requiredRule]"
-                            ></v-text-field>
+                                :rules="[requiredRule]">
+                            </v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
