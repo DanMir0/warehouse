@@ -7,8 +7,10 @@ import OrderStatuses from "../pages/OrderStatuses.vue";
 import OrderStatus from "../pages/OrderStatus.vue";
 import DocumentTypes from "../pages/DocumentTypes.vue";
 import DocumentType from "../pages/DocumentType.vue";
-import Counterparties from "@/pages/Counterparties.vue";
-import Counterparty from "@/pages/Counterparty.vue";
+import Counterparties from "../pages/Counterparties.vue";
+import Counterparty from "../pages/Counterparty.vue";
+import TechCards from "../pages/TechCards.vue";
+import TechCard from "../pages/TechCard.vue";
 
 const routes = [
     {
@@ -84,6 +86,20 @@ const routes = [
     {
         path: "/counterparties/:id/edit",
         component: Counterparty,
+        props: true,
+    },
+    {
+        path: "/tech_cards",
+        component: TechCards,
+    },
+    {
+        path: "/tech_cards/create",
+        component: TechCard,
+        props: true,
+    },
+    {
+        path: "/tech_cards/:id/edit",
+        component: TechCard,
         props: true,
     },
 ]

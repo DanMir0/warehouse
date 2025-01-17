@@ -11,6 +11,7 @@ import App from './components/App.vue';
 import WSideBar from "./components/WSideBar.vue";
 import WTable from "./components/WTable.vue";
 import router from "./router/index.js";
+import WChildProductsTable from "./components/WChildProductsTable.vue";
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -40,6 +41,7 @@ const app = createApp(App);
 app
     .component('w-table', WTable)
     .component('w-side-bar', WSideBar)
+    .component('w-child-products-table', WChildProductsTable)
     .use(vuetify)
     .use(router)
     .mount('#app');

@@ -6,6 +6,8 @@ use App\Http\Controllers\UnitsOfMeasurementsController;
 use \App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\CounterpartiesController;
+use App\Http\Controllers\TechCardController;
+use App\Http\Controllers\TechCardProductController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -27,6 +29,12 @@ Route::resource('/document_types', DocumentTypeController::class);
 Route::get('/api/counterparties', [CounterpartiesController::class, 'getCounterparties'])->name('getCounterparties');
 Route::get('/api/counterparties/{id}', [CounterpartiesController::class, 'getCounterparty'])->name('getCounterparty');
 Route::resource('/counterparties', CounterpartiesController::class);
+
+Route::get('/api/tech_cards', [TechCardController::class, 'getTechCards'])->name('getTechCards');
+Route::get('/api/tech_cards/{id}', [TechCardController::class, 'getTechCard'])->name('getTechCard');
+Route::resource('/tech_cards', TechCardController::class);
+
+Route::get('/api/tech_card_products/{id}', [TechCardProductController::class, 'getTechCardProducts'])->name('getTechCardProducts');
 
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue

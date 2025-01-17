@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('units_of_measurements', function (Blueprint $table) {
+        Schema::create('tech_cards', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
+            $table->foreignId('product_id')->constrained('products');
+            $table->timestamps();
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('units_of_measurements');
+        Schema::dropIfExists('tech_cards');
     }
 };
