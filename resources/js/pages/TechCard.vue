@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import WChildProductsTable from "../components/WChildProductsTable.vue";
+import { compareObjData, formatDate } from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -35,32 +36,6 @@ function back() {
     router.back();
 }
 
-function compareObjData(obj1, obj2) {
-    if (obj1 === obj2) return true; // Простое равенство
-
-    if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
-        return false; // Если это не объекты, то возвращаем false
-    }
-
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) return false; // Разное количество ключей
-
-    for (const key of keys1) {
-        if (!keys2.includes(key)) return false; // Ключ отсутствует в obj2
-
-        const val1 = obj1[key];
-        const val2 = obj2[key];
-
-        const areObjects = typeof val1 === "object" && typeof val2 === "object";
-        if (areObjects && !compareObjData(val1, val2)) return false; // Рекурсивная проверка вложенных объектов
-        if (!areObjects && val1 !== val2) return false; // Простое сравнение значений
-    }
-
-    return true; // Всё совпадает;
-}
-
 function save() {
     const techCardData = {
         name: entity.value.name,
@@ -72,7 +47,7 @@ function save() {
         deletedProducts: [...deletedProducts.value],
     }
 
-    const a = {
+    const defaultTechCard = {
         name: techCard.value.name,
         product_id: techCard.value.product_id,
         deletedProducts: [],
@@ -81,9 +56,8 @@ function save() {
             quantity: parseFloat(product.quantity) // Преобразование в число
         }))
     }
-    console.log('aa', a)
-    console.log(techCardData)
-    const isUnchanged = compareObjData(a, techCardData)
+
+    const isUnchanged = compareObjData(defaultTechCard, techCardData)
     if (isUnchanged) {
         alertMessage.value = "Нечего изменять."
         alertType.value = "error"
@@ -120,7 +94,6 @@ function save() {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                console.log(error)
                 alertMessage.value = error.message;
                 alertType.value = "error";
             });
@@ -136,11 +109,6 @@ function updatedProduct({id, product}) {
     if (index !== -1) {
         selectedProducts.value[index] = {...product}
     }
-}
-
-function formatDate(date) {
-    if (!date) return "";
-    return new Date(date).toISOString().split('T')[0];
 }
 
 const deletedProducts = ref([])
