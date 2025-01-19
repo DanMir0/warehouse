@@ -2,6 +2,7 @@
 import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -41,28 +42,24 @@ function save() {
     if (route.params.id) {
         axios.put(`/document_types/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Тип документа изменен"
-                alertType.value = "success"
+                setAlert(alertMessage, alertType, "Тип документа изменен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     } else {
         axios.post("/document_types", entity.value)
             .then(response => {
-                alertMessage.value = "Тип документа добавлен"
-                alertType.value = "success"
+                setAlert(alertMessage, alertType, "Тип документа добавлен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 }
@@ -75,8 +72,7 @@ onMounted(() => {
                 entity.value = {...documentType.value}
             })
             .catch(error => {
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 })
@@ -97,7 +93,6 @@ onMounted(() => {
             <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
-
             <v-card-text>
                 <v-container>
                     <v-row>
@@ -130,7 +125,6 @@ onMounted(() => {
                     </v-row>
                 </v-container>
             </v-card-text>
-
             <v-card-actions class="justify-end">
                 <v-btn
                     variant="outlined"
@@ -148,7 +142,6 @@ onMounted(() => {
         </v-form>
     </v-card>
 </template>
-
 <style scoped>
 .alert {
     left: 50%;

@@ -1,7 +1,21 @@
-export function clearAlertAfterDelay(setter, delay = 5000) {
-    setTimeout(() => {
-        setter("");
-    }, delay);
+/**
+ * @param {Ref} alertMessageRef - Ref для сообщения алерта.
+ * @param {Ref} alertTypeRef - Ref для типа алерта.
+ * @param {string} message - Сообщение алерта.
+ * @param {string} type - Тип алерта (success, error и т.д.).
+ * @param {number} delay - Задержка перед очитской сообщений (в миллисекундах)
+ */
+
+export function setAlert(alertMessageRef, alertTypeRef, message, type, delay= 4000) {
+    alertMessageRef.value = message;
+    alertTypeRef.value = type;
+
+    if (delay > 0) {
+        setTimeout(() => {
+            alertMessageRef.value = "";
+            alertTypeRef.value = "";
+        }, delay)
+    }
 }
 
 export function formatDate(date) {

@@ -2,7 +2,7 @@
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
-import {en} from "vuetify/locale";
+import {setAlert} from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -40,28 +40,24 @@ function save() {
     if (route.params.id) {
         axios.put(`/counterparties/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Контрагент изменен";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Контрагент изменен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value =  {...error.response.data.errors};
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     } else {
         axios.post("/counterparties", entity.value)
             .then(response => {
-                alertMessage.value = "Контрагент добавлен"
-                alertType.value = "success"
+                setAlert(alertMessage, alertType, "Контрагент добавлен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value =  {...error.response.data.errors};
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 }
@@ -96,8 +92,7 @@ onMounted(() => {
                 entity.value = {...counterparty.value};
             })
             .catch(error => {
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 })

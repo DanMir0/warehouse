@@ -2,6 +2,7 @@
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {useRoute} from "vue-router";
+import {setAlert} from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -32,43 +33,35 @@ onMounted(() => {
                 entity.value = {...product.value}
             })
             .catch(error => {
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     }
 });
-
-
 
 function save() {
     if (route.params.id) {
         axios.put(`/products/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Товар изменен.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Товар изменен.", "success");;
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     } else {
         axios.post("/products", entity.value)
             .then(response => {
-                alertMessage.value = "Товар добавлен.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Товар добавлен.", "success");;
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     }
-
 }
 
 function back() {

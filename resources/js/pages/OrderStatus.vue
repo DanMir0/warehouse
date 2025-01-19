@@ -2,6 +2,7 @@
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const alertMessage = ref('');
 const alertType = ref('');
@@ -34,28 +35,24 @@ function save() {
     if (route.params.id) {
         axios.put(`/order_statuses/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Статус заказа изменен.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Статус заказа изменен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     } else {
         axios.post("/order_statuses", entity.value)
             .then(response => {
-                alertMessage.value = "Статус заказа добавлен.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Статус заказа добавлен.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 }
@@ -68,8 +65,7 @@ onMounted(() => {
                 entity.value = {...orderStatus.value};
             })
             .catch(error => {
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 })

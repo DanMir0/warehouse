@@ -2,6 +2,7 @@
 import {useRoute} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -33,12 +34,10 @@ onMounted(() => {
         axios.get(`/api/measuring_units/${route.params.id}`)
             .then(response => {
                 measuringUnit.value = response.data
-                console.log(response.data)
                 entity.value = {...measuringUnit.value}
             })
             .catch(error => {
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     }
 })
@@ -51,35 +50,29 @@ function save() {
     if (route.params.id) {
         axios.put(`/measuring_units/${route.params.id}`, entity.value)
             .then(response => {
-                alertMessage.value = "Единица измерения изменена.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Единица измерения изменена.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     } else {
         axios.post("/measuring_units", entity.value)
             .then(response => {
-                alertMessage.value = "Единица измерения добавлена.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Единица измерения добавлена.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 }
 
-
 </script>
-
 <template>
     <v-alert
         v-show="alertMessage"
@@ -95,7 +88,6 @@ function save() {
             <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
-
             <v-card-text>
                 <v-container>
                     <v-row>

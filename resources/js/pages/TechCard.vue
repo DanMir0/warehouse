@@ -3,7 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import WChildProductsTable from "../components/WChildProductsTable.vue";
-import { compareObjData, formatDate } from "../helpers/helpers.js";
+import {setAlert, compareObjData, formatDate} from "../helpers/helpers.js";
 
 const route = useRoute();
 
@@ -59,14 +59,12 @@ function save() {
 
     const isUnchanged = compareObjData(defaultTechCard, techCardData)
     if (isUnchanged) {
-        alertMessage.value = "Нечего изменять."
-        alertType.value = "error"
+        setAlert(alertMessage, alertType, "Нечего изменять.", "error");
         return;
     }
 
     if (techCardData.products.length === 0) {
-        alertMessage.value = "Укажите материалы."
-        alertType.value = "error"
+        setAlert(alertMessage, alertType, "Укажите материалы.", "error");
         return;
     }
 
@@ -74,28 +72,24 @@ function save() {
         axios.put(`/tech_cards/${route.params.id}`, techCardData)
             .then(response => {
                 deletedProducts.value = []
-                alertMessage.value = "Тех карта обновлена.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Тех карта обновлена.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     } else {
         axios.post("/tech_cards", techCardData)
             .then(response => {
-                alertMessage.value = "Тех карта добавлена.";
-                alertType.value = "success";
+                setAlert(alertMessage, alertType, "Тех карта добавлена.", "success");
             })
             .catch(error => {
                 if (error.response && error.response.status === 422) {
                     errors.value = {...error.response.data.errors}
                 }
-                alertMessage.value = error.message;
-                alertType.value = "error";
+                setAlert(alertMessage, alertType, error.message, "error");
             });
     }
 }
