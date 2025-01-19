@@ -48,3 +48,20 @@ export function compareObjData(obj1, obj2) {
 
     return true; // Всё совпадает;
 }
+
+export function formatPhone(value) {
+    value = value.replace(/\D/g, "")
+    if (value.startsWith("7")) {
+        value = "+" + value
+    } else {
+        value = "+7" + value;
+    }
+
+    if (value.length > 2) value = value.slice(0, 2) + " (" + value.slice(2);
+    if (value.length > 7) value = value.slice(0, 7) + ") " + value.slice(7);
+    if (value.length > 12) value = value.slice(0, 12) + "-" + value.slice(12);
+    if (value.length > 15) value = value.slice(0, 15) + "-" + value.slice(15);
+    if (value.length > 18) value = value.slice(0, 18);
+
+    return  value;
+}

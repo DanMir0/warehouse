@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import {requireRule} from "../helpers/validationRules.js";
 
 const route = useRoute();
 
@@ -22,13 +23,7 @@ const inOut = ref([
     {id: 2, name: "Расход", value: "OUT"},
 ])
 
-const rules = [
-    value => {
-        if (value) return true
-
-        return "Поле обязательное."
-    }
-]
+const rules = [requireRule]
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать тип документа" : "Добавить тип документа";

@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {useRoute} from "vue-router";
 import {setAlert} from "../helpers/helpers.js";
+import {requireRule} from "../helpers/validationRules.js";
 
 const route = useRoute();
 
@@ -68,13 +69,7 @@ function back() {
     router.back();
 }
 
-const rules = [
-    value => {
-        if (value) return true
-
-        return "Поле обязательное."
-    }
-];
+const rules = [requireRule];
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать товар" : "Добавить товар"

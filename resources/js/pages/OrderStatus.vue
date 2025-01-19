@@ -3,6 +3,7 @@ import {useRoute} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import {requireRule} from "../helpers/validationRules.js";
 
 const alertMessage = ref('');
 const alertType = ref('');
@@ -16,13 +17,7 @@ const entity = ref({
     name: null,
 });
 
-const rules = [
-    value => {
-        if (value) return true
-
-        return "Поле обязательное"
-    }
-]
+const rules = [requireRule];
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать статус заказа" : "Добавить статус заказа";

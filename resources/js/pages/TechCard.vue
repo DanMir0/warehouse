@@ -4,6 +4,7 @@ import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import WChildProductsTable from "../components/WChildProductsTable.vue";
 import {setAlert, compareObjData, formatDate} from "../helpers/helpers.js";
+import {requireRule} from "../helpers/validationRules.js";
 
 const route = useRoute();
 
@@ -24,13 +25,7 @@ const errors = ref({});
 
 const formTitle = computed(() => route.params.id ? "Редактировать тех карту" : "Добавить тех карту");
 
-const rules = [
-    value => {
-        if (value) return true
-
-        return "Поле обязательное."
-    }
-]
+const rules = [requireRule];
 
 function back() {
     router.back();
