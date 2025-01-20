@@ -11,6 +11,8 @@ import Counterparties from "../pages/Counterparties.vue";
 import Counterparty from "../pages/Counterparty.vue";
 import TechCards from "../pages/TechCards.vue";
 import TechCard from "../pages/TechCard.vue";
+import Orders from "../pages/Orders.vue";
+import Order from "../pages/Order.vue";
 
 const routes = [
     {
@@ -100,6 +102,20 @@ const routes = [
     {
         path: "/tech_cards/:id/edit",
         component: TechCard,
+        props: true,
+    },
+    {
+        path: "/orders",
+        component: Orders,
+    },
+    {
+        path: "/orders/create",
+        component: Order,
+        props: true,
+    },
+    {
+        path: "/orders/:id/edit",
+        component: Order,
         props: true,
     },
 ]

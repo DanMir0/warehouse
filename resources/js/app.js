@@ -12,6 +12,8 @@ import WSideBar from "./components/WSideBar.vue";
 import WTable from "./components/WTable.vue";
 import router from "./router/index.js";
 import WChildProductsTable from "./components/WChildProductsTable.vue";
+import WChildTechCardTable from "./components/WChildTechCardTable.vue";
+import WChildDocumentsTable from "@/components/WChildDocumentsTable.vue";
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -42,6 +44,8 @@ app
     .component('w-table', WTable)
     .component('w-side-bar', WSideBar)
     .component('w-child-products-table', WChildProductsTable)
+    .component("w-child-tech-card-table", WChildTechCardTable)
+    .component("w-child-documents-table", WChildDocumentsTable)
     .use(vuetify)
     .use(router)
     .mount('#app');
