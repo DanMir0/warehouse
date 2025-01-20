@@ -5,6 +5,7 @@ import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule, innRule} from "../helpers/validationRules.js";
 import {formatDate, formatPhone} from "../helpers/helpers.js";
+import {en} from "vuetify/locale";
 
 const route = useRoute();
 
@@ -73,6 +74,10 @@ onMounted(() => {
             .then(response => {
                 counterparty.value = response.data;
                 entity.value = {...counterparty.value};
+
+                if (entity.value.contact_info) {
+                    entity.value.contact_info = formatPhone(entity.value.contact_info)
+                }
             })
             .catch(error => {
                 setAlert(alertMessage, alertType, error.message, "error");

@@ -50,18 +50,13 @@ export function compareObjData(obj1, obj2) {
 }
 
 export function formatPhone(value) {
-    value = value.replace(/\D/g, "")
-    if (value.startsWith("7")) {
-        value = "+" + value
-    } else {
-        value = "+7" + value;
-    }
+    const cleaned = value.replace(/\D/g, ""); // Удаляем всё, кроме цифр
 
-    if (value.length > 2) value = value.slice(0, 2) + " (" + value.slice(2);
-    if (value.length > 7) value = value.slice(0, 7) + ") " + value.slice(7);
-    if (value.length > 12) value = value.slice(0, 12) + "-" + value.slice(12);
-    if (value.length > 15) value = value.slice(0, 15) + "-" + value.slice(15);
-    if (value.length > 18) value = value.slice(0, 18);
+    let result = "+7";
+    if (cleaned.length > 1) result += ` (${cleaned.slice(1, 4)}`;
+    if (cleaned.length > 4) result += `) ${cleaned.slice(4, 7)}`;
+    if (cleaned.length > 7) result += `-${cleaned.slice(7, 9)}`;
+    if (cleaned.length > 9) result += `-${cleaned.slice(9, 11)}`;
 
-    return  value;
+    return result;
 }

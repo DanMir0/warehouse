@@ -23,11 +23,14 @@ class CounterpartiesController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|min:3|unique:counterparties,name',
-            'contact_info' => 'required|regex:/^\+7[0-9]{10}$/',
+            'contact_info' => 'regex:/^\+7\s*\(?\d{3}\)?\s*\d{3}-?\d{2}-?\d{2}$/',
             'address' => 'required|string|min:5',
             'inn' => 'required|numeric|digits:10',
             'contact_persons' => 'required|string|regex:/^[^\d]+$/',
         ]);
+
+        $validated['contact_info'] = preg_replace('/\D/', '', $validated['contact_info']); // Удаление всех символов, кроме цифр
+        $validated['contact_info'] = '+7' . substr($validated['contact_info'], 1); // Приведение к виду +7XXXXXXXXXX
 
         $counterparty = new Counterparties([
             'name' => $validated['name'],

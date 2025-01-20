@@ -2,6 +2,7 @@
 import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {formatPhone} from "../helpers/helpers.js";
 
 let counterparties = ref([]);
 
@@ -53,7 +54,12 @@ function deleteItemConfirm(id) {
 onMounted(() => {
     axios.get('/api/counterparties')
         .then(response => {
-            counterparties.value = response.data
+            counterparties.value = response.data.map(counterparty => {
+                return {
+                    ...counterparty,
+                    contact_info: formatPhone(counterparty.contact_info)
+                }
+            })
         })
         .catch(error => {
             console.log(error)
@@ -72,7 +78,7 @@ onMounted(() => {
     </v-alert>
     <w-table
         title="Контрагенты"
-        btn-icon="mdi-magnify"
+        btn-icon="mdi-account-plus"
         :headers="headers"
         :items="counterparties"
         :editedItem="editedItem"
