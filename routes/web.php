@@ -33,10 +33,12 @@ Route::resource('/counterparties', CounterpartiesController::class);
 
 Route::get('/api/tech_cards', [TechCardController::class, 'getTechCards'])->name('getTechCards');
 Route::get('/api/tech_cards/{id}', [TechCardController::class, 'getTechCard'])->name('getTechCard');
+Route::get('/api/products_tech_cards', [TechCardController::class, 'getProductsTechCard'])->name('getProductsTechCard');
 Route::resource('/tech_cards', TechCardController::class);
 
 Route::get('/api/tech_card_products/{id}', [TechCardProductController::class, 'getTechCardProducts'])->name('getTechCardProducts');
 
+Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('getOrders');
 Route::resource('/orders', OrderController::class);
 
 Route::get('/{any}', function () {

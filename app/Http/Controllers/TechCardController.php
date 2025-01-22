@@ -73,7 +73,7 @@ class TechCardController extends Controller
 
     public function getTechCard($id)
     {
-        $tech_card = TechCard::select('tc.*', 'p.id as product_id' )
+        $tech_card = TechCard::select('tc.*', 'p.id as product_id')
             ->from('tech_cards as tc')
             ->join('products as p', 'tc.product_id', '=', 'p.id')
             ->where('tc.id', $id)
@@ -147,5 +147,19 @@ class TechCardController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Ошибка при обновлении.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function getProductsTechCard()
+    {
+        $products = TechCard::join('products', 'tech_cards.product_id', '=', 'products.id')
+            ->select('products.name', 'products.id', 'tech_cards.id as tech_card_id')
+            ->distinct()
+            ->get();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'Нет продуктов в техкартах'], 404);
+        }
+
+        return response()->json($products);
     }
 }

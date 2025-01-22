@@ -1,6 +1,7 @@
 <script setup>
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {formatDate} from "../helpers/helpers.js";
 
 const alertMessage = ref("");
 const alertType = ref("");
@@ -20,6 +21,19 @@ function addItem() {
     router.push("/orders/create")
 }
 
+onMounted(() => {
+    axios.get("api/orders")
+        .then(response => {
+            orders.value = response.data.map(item => ({
+                ...item,
+                created_at: formatDate(item.created_at),
+                updated_at: formatDate(item.updated_at)
+            }))
+        })
+        .catch(error => {
+            console.error(error);
+        })
+})
 </script>
 
 <template>

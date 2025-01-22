@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('order_status_id');
             $table->integer('counterparty_id');
             $table->timestamps();
-            $table->date('finished_at');
+            $table->date('finished_at')->nullable()->default(null);
         });
     }
 

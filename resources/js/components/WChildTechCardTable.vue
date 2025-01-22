@@ -1,5 +1,5 @@
 <script setup>
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 
 defineProps({selectedProducts: Array})
@@ -13,8 +13,11 @@ const headers = ref([
     {title: "Количество", value: "quantity", sortable: true},
 ]);
 const editedItem = ref({
-   id: null,
+    id: null,
+    product_name: null,
+    quantity: 0,
 });
+const products = ref([]);
 
 const dialogTitle = computed(() => route.params.id ? "Редактировать" : "Добавить");
 
@@ -27,8 +30,44 @@ function deleteItem(item) {
 }
 
 function save() {
+    errors.value = {}
 
+    if (editedItem.value.quantity <= 0 || editedItem.value.quantity === "") {
+        errors.value.quantity = "Число должно быть меньше 0."
+    }
+
+    if (!editedItem.value.product_name) errors.value.product = "Поле обязательное."
+
+    if (Object.keys(errors.value).length > 0) {
+        return;
+    }
+
+    const productId = products.value.find(p => p.name === editedItem.value.product_name);
+    const newProduct = {
+        product_id: productId?.id,
+        tech_card_id: productId?.tech_card_id,
+        product_name: editedItem.value.product_name,
+        quantity: parseFloat(editedItem.value.quantity),
+    }
+    emit("add-product", newProduct)
+
+    clearForm()
 }
+
+function clearForm() {
+    editedItem.value = {id: null, product_name: null, quantity: 0,}
+    dialog.value = false;
+}
+
+onMounted(() => {
+    axios.get("/api/products_tech_cards")
+        .then(response => {
+            products.value = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
+})
 </script>
 
 <template>

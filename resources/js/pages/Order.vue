@@ -1,13 +1,14 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
-import WChildDocumentsTable from "@/components/WChildDocumentsTable.vue";
+import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const alertMessage = ref("")
 const alertType = ref("")
 const route = useRoute();
 const entity = ref({
-    order_status_id: null,
+    order_status_id: 1,
     counterparty_id: null,
     created_at: null,
     updated_at: null,
@@ -16,13 +17,60 @@ const entity = ref({
 const errors = ref({});
 const counterparties = ref([]);
 const tab = ref();
+const orderStatuses = ref([]);
+const selectedProducts = ref([]);
 
 const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
+
+function addProduct(product) {
+    selectedProducts.value.push(product)
+}
+
+function updatedProduct({id, product}) {
+    const index = selectedProducts.value.findIndex(p => p.id === id)
+    if (index !== -1) {
+        selectedProducts.value[index] = {...product}
+    }
+}
+
+function back() {
+    router.back();
+}
+
+function save() {
+    const orderData = {
+        order_status_id: entity.value.order_status_id,
+        counterparty_id: entity.value.counterparty_id,
+        finished_at: null,
+        products: selectedProducts.value.map(product => ({
+            tech_card_id: product.tech_card_id,
+            quantity: product.quantity
+        }))
+    }
+    console.log(orderData)
+    axios.post("/orders", orderData)
+        .then(response => {
+            setAlert(alertMessage, alertType, "Заказ добавлен.", "success");
+        })
+        .catch(error => {
+
+        })
+}
 
 onMounted(() => {
     axios.get("/api/counterparties")
         .then(response => {
             counterparties.value = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
+    axios.get("/api/order_statuses")
+        .then(response => {
+            orderStatuses.value = response.data
+        })
+        .catch(error => {
+            console.log(error)
         })
 })
 </script>
@@ -53,13 +101,16 @@ onMounted(() => {
                             </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                            <v-text-field
+                            <v-select
                                 disabled
                                 v-model="entity.order_status_id"
                                 label="Статус производства"
+                                :items="orderStatuses"
+                                item-title="name"
+                                item-value="id"
                                 :rules="rules"
                                 :error-messages="errors.order_status_id">
-                            </v-text-field>
+                            </v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                             <v-select
@@ -120,7 +171,10 @@ onMounted(() => {
                                     <v-tabs-window v-model="tab">
                                         <v-tabs-window-item
                                             value="products">
-                                            <w-child-tech-card-table>
+                                            <w-child-tech-card-table
+                                                :items="selectedProducts"
+                                                @updated-product="updatedProduct"
+                                                @add-product="addProduct">
 
                                             </w-child-tech-card-table>
                                         </v-tabs-window-item>
