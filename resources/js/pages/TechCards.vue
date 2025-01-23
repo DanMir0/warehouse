@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {formatDate} from "@/helpers/helpers.js";
 
 const techCards = ref([]);
 
@@ -52,8 +53,8 @@ onMounted(() => {
         .then(response => {
             techCards.value = response.data.map(item => ({
                 ...item,
-                created_at: new Date(item.created_at).toLocaleDateString(),
-                updated_at: new Date(item.updated_at).toLocaleDateString(),
+                created_at: formatDate(item.created_at),
+                updated_at: formatDate(item.updated_at),
             }));
         })
         .catch(error => {
