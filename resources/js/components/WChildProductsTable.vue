@@ -37,7 +37,7 @@ const dialogTitle = computed(() => route.params.id ? "Редактировать
 
 function save() {
     errors.value = {}
-    if (editedItem.value.quantity === 0 || editedItem.value.quantity === "") {
+    if (editedItem.value.quantity <= 0 || editedItem.value.quantity === "") {
         errors.value.quantity = "Число должно быть больше 0";
     }
 

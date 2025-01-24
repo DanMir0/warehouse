@@ -42,28 +42,28 @@ function save() {
         deletedProducts: [...deletedProducts.value],
     }
 
-    const defaultTechCard = {
-        name: techCard.value.name,
-        product_id: techCard.value.product_id,
-        deletedProducts: [],
-        products: defaultSelectProducts.value.map(product => ({
-            product_id: product.product_id,
-            quantity: parseFloat(product.quantity) // Преобразование в число
-        }))
-    }
-
-    const isUnchanged = compareObjData(defaultTechCard, techCardData)
-    if (isUnchanged) {
-        setAlert(alertMessage, alertType, "Нечего изменять.", "error");
-        return;
-    }
-
     if (techCardData.products.length === 0) {
         setAlert(alertMessage, alertType, "Укажите материалы.", "error");
         return;
     }
 
     if (route.params.id) {
+        const defaultTechCard = {
+            name: techCard.value.name,
+            product_id: techCard.value.product_id,
+            deletedProducts: [],
+            products: defaultSelectProducts.value.map(product => ({
+                product_id: product.product_id,
+                quantity: parseFloat(product.quantity) // Преобразование в число
+            }))
+        }
+
+        const isUnchanged = compareObjData(defaultTechCard, techCardData)
+        if (isUnchanged) {
+            setAlert(alertMessage, alertType, "Нечего изменять.", "error");
+            return;
+        }
+
         axios.put(`/tech_cards/${route.params.id}`, techCardData)
             .then(response => {
                 deletedProducts.value = []
