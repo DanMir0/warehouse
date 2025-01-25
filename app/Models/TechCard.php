@@ -9,4 +9,9 @@ class TechCard extends Model
 {
 //    use HasFactory;
     protected $fillable = ['name', 'product_id'];
+
+    public function productTechCards()
+    {
+        return $this->hasMany(OrderTechCard::class, 'tech_card_id');
+    }
 }

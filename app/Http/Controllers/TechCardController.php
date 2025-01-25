@@ -88,7 +88,11 @@ class TechCardController extends Controller
     {
         $tech_card = TechCard::find($id);
 
-        if ($tech_card) $tech_card->delete();
+        if ($tech_card) {
+            $tech_card->productTechCards()->delete();
+
+            $tech_card->delete();
+        }
     }
 
     public function update(Request $request, $id)
