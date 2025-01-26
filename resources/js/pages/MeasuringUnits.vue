@@ -2,6 +2,7 @@
 import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const measuringUnits = ref([]);
 
@@ -41,12 +42,10 @@ function deleteItemConfirm(id) {
         .then(response => {
             dialogDelete.value = false;
             measuringUnits.value = measuringUnits.value.filter(measuringUnit => measuringUnit.id !== id);
-            alertMessage.value = "Единица измерения удалена.";
-            alertType.value = "success";
+            setAlert(alertMessage, alertType, "Единица измерения удалена.", "success")
         })
         .catch(error => {
-            alertMessage.value = error.messages;
-            alertType.value = "error";
+            setAlert(alertMessage, alertType, error.message, "error")
         });
 }
 </script>

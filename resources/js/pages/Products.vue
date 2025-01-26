@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 let products = ref([]);
 
@@ -39,12 +40,10 @@ function deleteItemConfirm(id) {
         .then(response => {
             dialogDelete.value = false;
             products.value = products.value.filter(product => product.id !== id)
-            alertMessage.value = "Товар удален.";
-            alertType.value = "success";
+            setAlert(alertMessage, alertType, "Товар удален.", "success")
         })
         .catch(error => {
-            alertMessage.value = error.messages;
-            alertType.value = "error";
+            setAlert(alertMessage, alertType, error.message, "error")
         });
 }
 

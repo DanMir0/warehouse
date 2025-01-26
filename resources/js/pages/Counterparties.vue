@@ -2,7 +2,7 @@
 import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
-import {formatPhone} from "../helpers/helpers.js";
+import {formatPhone, setAlert} from "../helpers/helpers.js";
 
 let counterparties = ref([]);
 
@@ -42,12 +42,10 @@ function deleteItemConfirm(id) {
         .then(response => {
             dialogDelete.value = false;
             counterparties.value = counterparties.value.filter(counterparty => counterparty.id !== id);
-            alertMessage.value = "Контрагент удален";
-            alertType.value = "success";
+            setAlert(alertMessage, alertType, "Контрагент удален", "success")
         })
         .catch(error => {
-            alertMessage.value = error.message;
-            alertType.value = "error";
+            setAlert(alertMessage, alertType, error.message, "error")
         })
 }
 

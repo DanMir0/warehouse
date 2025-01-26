@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import {setAlert} from "../helpers/helpers.js";
 
 let documentTypes = ref([]);
 
@@ -31,13 +32,11 @@ function deleteItemConfirm(id) {
     axios.delete(`/document_types/${id}`)
         .then(response => {
             dialogDelete.value = false;
-            documentTypes.value = documentTypes.value.filter(documentType => documentType.id !== id);
-            alertMessage.value = "Тип документа удален";
-            alertType.value = "success";
+            documentTypes.value = documentTypes.value.filter(documentType => documentType.id !== id);;
+            setAlert(alertMessage, alertType, "Тип документа удален", "success")
         })
         .catch(error => {
-            alertMessage.value = error.message;
-            alertType.value = "error";
+            setAlert(alertMessage, alertType, error.message, "error")
         })
 }
 

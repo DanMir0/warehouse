@@ -5,7 +5,6 @@ import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule, innRule} from "../helpers/validationRules.js";
 import {formatDate, formatPhone} from "../helpers/helpers.js";
-import {en} from "vuetify/locale";
 
 const route = useRoute();
 

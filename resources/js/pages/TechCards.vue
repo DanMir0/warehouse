@@ -1,7 +1,8 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
-import {formatDate} from "@/helpers/helpers.js";
+import {formatDate} from "../helpers/helpers.js";
+import {setAlert} from "../helpers/helpers.js";
 
 const techCards = ref([]);
 
@@ -38,13 +39,11 @@ function deleteItemConfirm(id) {
     axios.delete(`/tech_cards/${id}`)
         .then(response => {
             dialogDelete.value = false;
-            techCards.value = techCards.value.filter(orderStatus => orderStatus.id !== id);
-            alertMessage.value = "Тех карта удалена";
-            alertType.value = "success";
+            techCards.value = techCards.value.filter(item => item.id !== id);
+            setAlert(alertMessage, alertType,"Тех карта удалена", "success");
         })
         .catch(error => {
-            alertMessage.value = error.message;
-            alertType.value = "error";
+            setAlert(alertMessage, alertType,error.message, "error");
         })
 }
 
