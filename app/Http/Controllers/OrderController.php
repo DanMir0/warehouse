@@ -69,4 +69,16 @@ class OrderController extends Controller
 
         return response()->json($orders);
     }
+
+    public function getOrder($id)
+    {
+        $order = Order::select('o.*', 'os.id as order_status_id', 'c.id as counterparty_id')
+            ->from('orders as o')
+            ->join('order_statuses as os', 'o.order_status_id', '=', 'os.id')
+            ->join('counterparties as c', 'o.counterparty_id', '=', 'c.id')
+            ->where('o.id', $id)
+            ->first();
+
+        return response()->json($order);
+    }
 }

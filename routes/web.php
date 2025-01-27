@@ -9,6 +9,7 @@ use App\Http\Controllers\CounterpartiesController;
 use App\Http\Controllers\TechCardController;
 use App\Http\Controllers\TechCardProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderTechCardController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -39,7 +40,10 @@ Route::resource('/tech_cards', TechCardController::class);
 Route::get('/api/tech_card_products/{id}', [TechCardProductController::class, 'getTechCardProducts'])->name('getTechCardProducts');
 
 Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('getOrders');
+Route::get('/api/orders/{id}', [OrderController::class, 'getOrder'])->name('getOrder');
 Route::resource('/orders', OrderController::class);
+
+Route::get('/api/order_tech_card/{id}', [OrderTechCardController::class, 'getOrderTechCard'])->name('getOrderTechCard');
 
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue

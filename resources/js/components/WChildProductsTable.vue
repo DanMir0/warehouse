@@ -28,7 +28,6 @@ const editedItem = ref({
 function editItem(item) {
     dialog.value = true
     editedItem.value = {id: item.product_id, ...item}
-    console.log(editedItem.value)
 }
 
 const errors = ref({});

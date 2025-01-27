@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref,} from "vue";
 import {useRoute} from "vue-router";
 
 defineProps({selectedProducts: Array})
@@ -11,6 +11,7 @@ const errors = ref({});
 const headers = ref([
     {title: "Наименование", value: "product_name", sortable: true},
     {title: "Количество", value: "quantity", sortable: true},
+    {title: "Действия", value: "actions", sortable: false},
 ]);
 const editedItem = ref({
     id: null,
@@ -20,9 +21,12 @@ const editedItem = ref({
 const products = ref([]);
 
 const dialogTitle = computed(() => route.params.id ? "Редактировать" : "Добавить");
+const defaultProduct = ref()
 
 function editItem(item) {
-
+    dialog.value = true;
+    editedItem.value = {id: item.tech_card_id, ...item};
+    defaultProduct.value = {...editedItem.value}
 }
 
 function deleteItem(item) {
@@ -42,15 +46,25 @@ function save() {
         return;
     }
 
-    const productId = products.value.find(p => p.name === editedItem.value.product_name);
+    const productEdit = products.value.find(p => p.name === editedItem.value.product_name);
     const newProduct = {
-        product_id: productId?.id,
-        tech_card_id: productId?.tech_card_id,
+        product_id: productEdit?.id,
+        tech_card_id: productEdit?.tech_card_id,
         product_name: editedItem.value.product_name,
         quantity: parseFloat(editedItem.value.quantity),
     }
-    emit("add-product", newProduct)
 
+    if (editedItem.value.id !== null) {
+        const existingProduct = defaultProduct.value.quantity === editedItem.value.quantity && defaultProduct.value.product_name === editedItem.value.product_name;
+        if (existingProduct) {
+            errors.value.product = "Вы не поменяли товар."
+            errors.value.quantity = "Вы не поменяли количество."
+            return;
+        }
+        emit("updated-product", { id: editedItem.value.id, ...newProduct,});
+    } else {
+        emit("add-product", newProduct);
+    }
     clearForm()
 }
 

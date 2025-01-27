@@ -21,8 +21,12 @@ function addItem() {
     router.push("/orders/create")
 }
 
+function editItem(item) {
+    router.push(`/orders/${item.id}/edit`)
+}
+
 onMounted(() => {
-    axios.get("api/orders")
+    axios.get("/api/orders")
         .then(response => {
             orders.value = response.data.map(item => ({
                 ...item,

@@ -3,6 +3,8 @@ import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import {formatDate} from "../helpers/helpers.js";
+import {STATUS_FINISHED, STATUS_IN_PROGRESS, STATUS_NEW} from "../helpers/common/order_statuses.js";
 
 const alertMessage = ref("")
 const alertType = ref("")
@@ -26,8 +28,8 @@ function addProduct(product) {
     selectedProducts.value.push(product)
 }
 
-function updatedProduct({id, product}) {
-    const index = selectedProducts.value.findIndex(p => p.id === id)
+function updatedProduct(product) {
+    const index = selectedProducts.value.findIndex(p => p.id === product.id)
     if (index !== -1) {
         selectedProducts.value[index] = {...product}
     }
@@ -47,7 +49,7 @@ function save() {
             quantity: product.quantity
         }))
     }
-    console.log(orderData)
+
     axios.post("/orders", orderData)
         .then(response => {
             setAlert(alertMessage, alertType, "Заказ добавлен.", "success");
@@ -55,6 +57,10 @@ function save() {
         .catch(error => {
 
         })
+}
+
+function setStatusProgress() {
+
 }
 
 onMounted(() => {
@@ -72,6 +78,19 @@ onMounted(() => {
         .catch(error => {
             console.log(error)
         })
+    if (route.params.id) {
+        axios.get(`/api/orders/${route.params.id}`)
+            .then(response => {
+                entity.value = response.data
+            })
+            .catch(error => {
+
+            })
+        axios.get(`/api/order_tech_card/${route.params.id}`)
+            .then(response => {
+                selectedProducts.value = response.data
+            })
+    }
 })
 </script>
 
@@ -127,7 +146,7 @@ onMounted(() => {
                             <v-text-field
                                 disabled
                                 type="date"
-                                v-model="entity.created_at"
+                                :model-value="formatDate(entity.created_at)"
                                 label="Дата создания">
                             </v-text-field>
                         </v-col>
@@ -135,7 +154,7 @@ onMounted(() => {
                             <v-text-field
                                 disabled
                                 type="date"
-                                v-model="entity.updated_at"
+                                :model-value="formatDate(entity.updated_at)"
                                 label="Дата обновления">
                             </v-text-field>
                         </v-col>
@@ -143,7 +162,7 @@ onMounted(() => {
                             <v-text-field
                                 disabled
                                 type="date"
-                                v-model="entity.finished_at"
+                                :model-value="formatDate(entity.finished_at)"
                                 label="Дата окончания">
                             </v-text-field>
                         </v-col>
@@ -196,6 +215,27 @@ onMounted(() => {
             </v-card-text>
 
             <v-card-actions class="justify-end">
+                <template v-if="route.params.id">
+                    <v-btn
+                        v-if="entity.order_status_id === STATUS_NEW"
+                        variant="outlined"
+                        color="primary"
+                        @click="setStatusProgress">
+                        В производство
+                    </v-btn>
+                    <v-btn
+                        v-if="entity.order_status_id === STATUS_IN_PROGRESS"
+                        variant="outlined"
+                        color="primary">
+                        Готов
+                    </v-btn>
+                    <v-btn
+                        v-if="entity.order_status_id === STATUS_FINISHED"
+                        variant="outlined"
+                        color="primary">
+                        Выдан
+                    </v-btn>
+                </template>
                 <v-btn
                     variant="outlined"
                     color="primary"
@@ -203,6 +243,7 @@ onMounted(() => {
                     Назад
                 </v-btn>
                 <v-btn
+                    :disabled="entity.order_status_id !== STATUS_NEW"
                     variant="tonal"
                     color="primary"
                     @click="save">
