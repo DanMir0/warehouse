@@ -30,7 +30,8 @@ function editItem(item) {
 }
 
 function deleteItem(item) {
-
+    console.log(item, 'item')
+    emit("delete-products", item)
 }
 
 function save() {
