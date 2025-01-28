@@ -21,6 +21,8 @@ const counterparties = ref([]);
 const tab = ref();
 const orderStatuses = ref([]);
 const selectedProducts = ref([]);
+const deleteProducts = ref([]);
+const defaultSelectedProducts = ref([])
 
 const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
 
@@ -28,10 +30,10 @@ function addProduct(product) {
     selectedProducts.value.push(product)
 }
 
-function updatedProduct(product) {
-    const index = selectedProducts.value.findIndex(p => p.id === product.id)
+function updatedProduct(product, defaultProduct) {
+    const index = selectedProducts.value.findIndex(p => p.product_id === defaultProduct.product_id)
     if (index !== -1) {
-        selectedProducts.value[index] = {...product}
+        selectedProducts.value[index] = {old_card_tech_id: defaultProduct.tech_card_id,...product}
     }
 }
 
@@ -45,22 +47,41 @@ function save() {
         counterparty_id: entity.value.counterparty_id,
         finished_at: null,
         products: selectedProducts.value.map(product => ({
+            order_id: route.params.id ? parseInt(route.params.id) : null,
             tech_card_id: product.tech_card_id,
+            old_tech_card_id: product.old_card_tech_id || null,
             quantity: product.quantity
-        }))
+        })),
+        deletedProducts: [...deleteProducts.value]
     }
 
-    axios.post("/orders", orderData)
-        .then(response => {
-            setAlert(alertMessage, alertType, "Заказ добавлен.", "success");
-        })
-        .catch(error => {
-
-        })
+    if (route.params.id) {
+        axios.put(`/orders/${route.params.id}`, orderData)
+            .then(response => {
+                deleteProducts.value = []
+                setAlert(alertMessage, alertType, "Заказ обновлен!", "success")
+            })
+            .catch(error => {
+                setAlert(alertMessage, alertType, error.message, "error")
+            })
+    } else {
+        axios.post("/orders", orderData)
+            .then(response => {
+                setAlert(alertMessage, alertType, "Заказ добавлен.", "success");
+            })
+            .catch(error => {
+                setAlert(alertMessage, alertType, error.message, "error")
+            })
+    }
 }
 
 function setStatusProgress() {
 
+}
+
+function deleteProduct(product) {
+    deleteProducts.value.push(product.tech_card_id)
+    selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
 }
 
 onMounted(() => {
@@ -69,14 +90,14 @@ onMounted(() => {
             counterparties.value = response.data
         })
         .catch(error => {
-            console.log(error)
+            setAlert(alertMessage, alertType, "Не удалось получить данные о контрагентов.", "error");
         })
     axios.get("/api/order_statuses")
         .then(response => {
             orderStatuses.value = response.data
         })
         .catch(error => {
-            console.log(error)
+            setAlert(alertMessage, alertType, "Не удалось получить данные о статусах зазаказ.", "error");
         })
     if (route.params.id) {
         axios.get(`/api/orders/${route.params.id}`)
@@ -84,11 +105,16 @@ onMounted(() => {
                 entity.value = response.data
             })
             .catch(error => {
-
+                setAlert(alertMessage, alertType, error.message, "error");
             })
         axios.get(`/api/order_tech_card/${route.params.id}`)
             .then(response => {
                 selectedProducts.value = response.data
+                defaultSelectedProducst.value = response.data
+
+            })
+            .catch(error => {
+                setAlert(alertMessage, alertType, error.message, "error");
             })
     }
 })
@@ -192,8 +218,10 @@ onMounted(() => {
                                             value="products">
                                             <w-child-tech-card-table
                                                 :items="selectedProducts"
+                                                :defaultSelectedProducst="defaultSelectedProducts"
                                                 @updated-product="updatedProduct"
-                                                @add-product="addProduct">
+                                                @add-product="addProduct"
+                                                @delete-products="deleteProduct">
 
                                             </w-child-tech-card-table>
                                         </v-tabs-window-item>

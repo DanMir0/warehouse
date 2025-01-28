@@ -81,4 +81,83 @@ class OrderController extends Controller
 
         return response()->json($order);
     }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'order_status_id' => ['required', 'integer'],
+            'counterparty_id' => ['required', 'integer'],
+            'products' => ['nullable', 'array'],
+            'products.*.order_id' => ['required', 'integer', 'exists:orders,id'],
+            'products.*.tech_card_id' => ['required', 'integer', 'exists:tech_cards,id'],
+            'products.*.old_tech_card_id' => ['nullable', 'integer', 'exists:tech_cards,id'],
+            'products.*.quantity' => ['required', 'numeric', 'min:1'],
+            'deletedProducts' => ['nullable', 'array'],
+            'deletedProducts.*' => ['integer', 'exists:orders_tech_cards,tech_card_id'],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $order = Order::findOrFail($id);
+            $order->update([
+                'order_status_id' => $validated['order_status_id'],
+                'counterparty_id' => $validated['counterparty_id'],
+            ]);
+            // Удаление старых продуктов, добавление новых или обновление существующих
+            if (!empty($validated['deletedProducts'])) {
+                OrderTechCard::where('order_id', $id)
+                    ->whereIn('tech_card_id', $validated['deletedProducts'])
+                    ->delete();
+            }
+
+            if (!empty($validated['products'])) {
+                foreach ($validated['products'] as $product) {
+                    // Найдем продукт по старому tech_card_id, если он передан
+                    if (!empty($product['old_tech_card_id'])) {
+                        $existingProduct = OrderTechCard::where('order_id', $id)
+                            ->where('tech_card_id', $product['old_tech_card_id'])
+                            ->first();
+
+                        if ($existingProduct) {
+                            // Если продукт найден, обновляем его
+                            $updatedData = [
+                                'quantity' => $product['quantity'],
+                                'tech_card_id' => $product['tech_card_id'], // Обновляем на новый tech_card_id
+                            ];
+
+                            // Обновляем запись в таблице orders_tech_cards
+                            $existingProduct->update($updatedData);
+                        }
+                    } else {
+
+                        // Если old_tech_card_id не передан, проверяем на уникальность перед добавлением
+                        $existingProduct = OrderTechCard::where('order_id', $id)
+                            ->where('tech_card_id', $product['tech_card_id'])
+                            ->first();
+
+                        if (!$existingProduct) {
+                            // Если такой записи нет, добавляем новый продукт
+                            OrderTechCard::create([
+                                'order_id' => $id,
+                                'tech_card_id' => $product['tech_card_id'],
+                                'quantity' => $product['quantity'],
+                            ]);
+                        } else {
+                            // Если запись существует, обновляем её
+                            $existingProduct->update([
+                                'quantity' => $product['quantity'],
+                            ]);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+
+            return response()->json(['message' => 'Заказ успешно обновлен!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Ошибка при обновлении.', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

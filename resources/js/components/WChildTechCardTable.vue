@@ -2,7 +2,8 @@
 import {computed, onMounted, ref,} from "vue";
 import {useRoute} from "vue-router";
 
-defineProps({selectedProducts: Array})
+const props =  defineProps({selectedProducts: Array, defaultSelectedProducts: Array})
+
 const emit = defineEmits(['add-product', 'updated-product', 'delete-products'])
 
 const route = useRoute();
@@ -19,9 +20,10 @@ const editedItem = ref({
     quantity: 0,
 });
 const products = ref([]);
+const defaultProduct = ref()
 
 const dialogTitle = computed(() => route.params.id ? "Редактировать" : "Добавить");
-const defaultProduct = ref()
+
 
 function editItem(item) {
     dialog.value = true;
@@ -30,7 +32,6 @@ function editItem(item) {
 }
 
 function deleteItem(item) {
-    console.log(item, 'item')
     emit("delete-products", item)
 }
 
@@ -62,8 +63,17 @@ function save() {
             errors.value.quantity = "Вы не поменяли количество."
             return;
         }
-        emit("updated-product", { id: editedItem.value.id, ...newProduct,});
+        emit("updated-product", { id: editedItem.value.id, ...newProduct}, defaultProduct.value );
     } else {
+        // Проверяем, есть ли уже добавленный продукт с таким же tech_card_id
+        const duplicateProduct = props.defaultSelectedProducst.some(
+            (product) => product.product_name === editedItem.value.product_name
+        );
+
+        if (duplicateProduct) {
+            errors.value.product = "Этот товар уже добавлен.";
+            return;
+        }
         emit("add-product", newProduct);
     }
     clearForm()
