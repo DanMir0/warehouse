@@ -66,7 +66,7 @@ function save() {
         emit("updated-product", { id: editedItem.value.id, ...newProduct}, defaultProduct.value );
     } else {
         // Проверяем, есть ли уже добавленный продукт с таким же tech_card_id
-        const duplicateProduct = props.defaultSelectedProducst.some(
+        const duplicateProduct = props.defaultSelectedProducts.some(
             (product) => product.product_name === editedItem.value.product_name
         );
 
