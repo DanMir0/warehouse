@@ -41,6 +41,7 @@ Route::get('/api/tech_card_products/{id}', [TechCardProductController::class, 'g
 
 Route::get('/api/orders', [OrderController::class, 'getOrders'])->name('getOrders');
 Route::get('/api/orders/{id}', [OrderController::class, 'getOrder'])->name('getOrder');
+Route::put('/api/orders/{id}', [OrderController::class, 'setStatus'])->name('setStatus');
 Route::resource('/orders', OrderController::class);
 
 Route::get('/api/order_tech_card/{id}', [OrderTechCardController::class, 'getOrderTechCard'])->name('getOrderTechCard');

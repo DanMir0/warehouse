@@ -4,7 +4,7 @@ import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {formatDate} from "../helpers/helpers.js";
-import {STATUS_FINISHED, STATUS_IN_PROGRESS, STATUS_NEW} from "../helpers/common/order_statuses.js";
+import {STATUS_FINISHED, STATUS_IN_PROGRESS, STATUS_NEW, STATUS_ISSUED} from "../helpers/common/order_statuses.js";
 
 const alertMessage = ref("")
 const alertType = ref("")
@@ -24,6 +24,37 @@ const selectedProducts = ref([]);
 const deleteProducts = ref([]);
 const defaultSelectedProducts = ref([])
 
+
+const dialog = ref(false)
+const dialogMessage = ref("")
+const orderStatus = ref(null)
+
+function openDialog(status, message) {
+    orderStatus.value = status;
+    dialogMessage.value = message;
+    dialog.value = true;
+}
+
+function confirmAction() {
+    if (!orderStatus.value) return;
+
+    axios.put(`/api/orders/${route.params.id}`, {order_status_id: orderStatus.value})
+        .then(response => {
+            setAlert(alertMessage, alertType, "Заказ в производстве!", "success")
+
+            entity.value.order_status_id = response.data.order.order_status_id
+            console.log(entity.value)
+        })
+        .catch(error => {
+            setAlert(alertMessage, alertType, error.message, "error")
+
+        })
+        .finally(() => {
+            dialog.value = false;
+        })
+}
+
+
 const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
 
 function addProduct(product) {
@@ -33,7 +64,7 @@ function addProduct(product) {
 function updatedProduct(product, defaultProduct) {
     const index = selectedProducts.value.findIndex(p => p.product_id === defaultProduct.product_id)
     if (index !== -1) {
-        selectedProducts.value[index] = {old_card_tech_id: defaultProduct.tech_card_id,...product}
+        selectedProducts.value[index] = {old_card_tech_id: defaultProduct.tech_card_id, ...product}
     }
 }
 
@@ -75,10 +106,6 @@ function save() {
     }
 }
 
-function setStatusProgress() {
-
-}
-
 function deleteProduct(product) {
     deleteProducts.value.push(product.tech_card_id)
     selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
@@ -110,7 +137,7 @@ onMounted(() => {
         axios.get(`/api/order_tech_card/${route.params.id}`)
             .then(response => {
                 selectedProducts.value = response.data
-                defaultSelectedProducst.value = response.data
+                defaultSelectedProducts.value = response.data
 
             })
             .catch(error => {
@@ -248,19 +275,21 @@ onMounted(() => {
                         v-if="entity.order_status_id === STATUS_NEW"
                         variant="outlined"
                         color="primary"
-                        @click="setStatusProgress">
+                        @click="openDialog(STATUS_IN_PROGRESS, 'Проверьте свой заказ. Потом отрпавления в производсво, заказ нельзуя будет изменить.')">
                         В производство
                     </v-btn>
                     <v-btn
                         v-if="entity.order_status_id === STATUS_IN_PROGRESS"
                         variant="outlined"
-                        color="primary">
+                        color="primary"
+                        @click="openDialog(STATUS_FINISHED, 'Заказ готов? Подтвердите завершение.')">
                         Готов
                     </v-btn>
                     <v-btn
                         v-if="entity.order_status_id === STATUS_FINISHED"
                         variant="outlined"
-                        color="primary">
+                        color="primary"
+                        @click="openDialog(STATUS_ISSUED, 'Выдать заказ клиенту?')">
                         Выдан
                     </v-btn>
                 </template>
@@ -278,6 +307,18 @@ onMounted(() => {
                     Сохранить
                 </v-btn>
             </v-card-actions>
+            <v-dialog
+                v-model="dialog"
+                max-width="500"
+                persistent>
+                <v-card class="centered-text" title="Подтверждение действия">
+                    <v-card-text class="centered-text">{{ dialogMessage }}</v-card-text>
+                    <v-card-actions class="justify-space-between">
+                        <v-btn @click="dialog = false">Отмена</v-btn>
+                        <v-btn color="primary" @click="confirmAction">Подтвердить</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-form>
     </v-card>
 </template>
@@ -294,4 +335,7 @@ onMounted(() => {
     font-size: 20px;
 }
 
+.centered-text {
+    text-align: center;
+}
 </style>

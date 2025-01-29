@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderTechCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use mysql_xdevapi\Exception;
 
 class OrderController extends Controller
 {
@@ -159,5 +160,30 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Ошибка при обновлении.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function setStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'order_status_id' => ['required', 'integer', 'exists:order_statuses,id'],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $oder = Order::findOrFail($id);
+
+            $oder->update([
+               'order_status_id' => $validated['order_status_id'],
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Статус заказа успешно обновлен', 'order' => $oder], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Ошибка при обновлении статуса.', 'error' => $e->getMessage()], 500);
+        }
+
     }
 }
