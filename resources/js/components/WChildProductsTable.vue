@@ -4,9 +4,7 @@ import {useRoute} from "vue-router";
 
 const route = useRoute();
 
-defineProps({
-    selectedProducts: Array
-});
+const props = defineProps({selectedProducts: Array, defaultSelectedProducts: Array});
 const emit = defineEmits(['add-product', 'updatedProduct', 'deleteProduct']);
 
 const products = ref([]);
@@ -60,9 +58,17 @@ function save() {
     }
 
     if (editedItem.value.id !== null) {
-        console.log({ id: editedItem.value.id, product: newProduct})
-        emit("updatedProduct", { id: editedItem.value.id, product: newProduct})
+        emit("updatedProduct", {id: editedItem.value.id, product: newProduct})
     } else {
+        const duplicateProduct = props.defaultSelectedProducts.some(
+            (product) => product.product_name === editedItem.value.product_name
+        );
+
+        if (duplicateProduct) {
+            errors.value.product = "Этот материал уже добавлен.";
+            return;
+        }
+
         emit("add-product", newProduct)
     }
 
@@ -70,7 +76,7 @@ function save() {
 }
 
 function clearForm() {
-    editedItem.value = { id: null, product_name: null, quantity: 0 };
+    editedItem.value = {id: null, product_name: null, quantity: 0};
     dialog.value = false;
 }
 
@@ -152,14 +158,14 @@ onMounted(() => {
                             <v-btn
                                 color="blue darken-1"
                                 text="Отмена"
-                                 variant="text"
+                                variant="text"
                                 @click="dialog = false"
                             ></v-btn>
 
                             <v-btn
                                 color="blue darken-1"
                                 text="Сохранить"
-                                 variant="text"
+                                variant="text"
                                 @click="save"
                             ></v-btn>
                         </v-card-actions>

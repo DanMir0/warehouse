@@ -11,6 +11,7 @@ const route = useRoute();
 const products = ref();
 const selectedProducts = ref([]);
 const techCard = ref();
+const defaultSelectedProducts = ref([])
 
 const entity = ref({
     name: null,
@@ -52,7 +53,7 @@ function save() {
             name: techCard.value.name,
             product_id: techCard.value.product_id,
             deletedProducts: [],
-            products: defaultSelectProducts.value.map(product => ({
+            products: defaultSelectedProducts.value.map(product => ({
                 product_id: product.product_id,
                 quantity: parseFloat(product.quantity) // Преобразование в число
             }))
@@ -106,7 +107,6 @@ function deleteProduct(product) {
     selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
 }
 
-const defaultSelectProducts = ref([])
 onMounted(() => {
     axios.get("/api/products")
         .then(response => {
@@ -127,7 +127,7 @@ onMounted(() => {
         axios.get(`/api/tech_card_products/${route.params.id}`)
             .then(response => {
                 selectedProducts.value = response.data
-                defaultSelectProducts.value = [...selectedProducts.value]
+                defaultSelectedProducts.value = [...selectedProducts.value]
             })
             .catch(error => {
                 console.error(error);
@@ -202,6 +202,7 @@ onMounted(() => {
                         <v-col cols="12">
                             <w-child-products-table
                                 :items="selectedProducts"
+                                :defaultSelectedProducts="defaultSelectedProducts"
                                 @add-product="addProduct"
                                 @updated-product="updatedProduct"
                                 @delete-product="deleteProduct">
