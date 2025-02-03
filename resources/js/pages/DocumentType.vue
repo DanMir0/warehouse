@@ -4,14 +4,12 @@ import {useRoute} from "vue-router";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule} from "../helpers/validationRules.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchDocumentType, postDocumentType, putDocumentType} from "../services/documentTypeService.js";
+
+const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const route = useRoute();
-
-const documentType = ref();
-
-const alertMessage = ref('');
-const alertType = ref('');
-const errors = ref({})
 
 const entity = ref({
     name: null,
@@ -33,42 +31,31 @@ function back() {
     router.back();
 }
 
-function save() {
+async function save() {
     if (route.params.id) {
-        axios.put(`/document_types/${route.params.id}`, entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Тип документа изменен.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message} = await handlerResponse(putDocumentType(route.params.id, entity.value));
+        setAlert(alertMessage, alertType, success ? "Тип документа обновлен." : message, success ? "success" : "error");
     } else {
-        axios.post("/document_types", entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Тип документа добавлен.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message} = await handlerResponse(postDocumentType(entity.value));
+        setAlert(alertMessage, alertType, success ? "Тип документа добавлен." : message, success ? "success" : "error");
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
     if (route.params.id) {
-        axios.get(`/api/document_types/${route.params.id}`)
-            .then(response => {
-                documentType.value = response.data;
-                entity.value = {...documentType.value}
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message, data} = await handlerResponse(fetchDocumentType(route.params.id));
+        setAlert(alertMessage, alertType, message, "error")
+        if (success) {
+            entity.value = data;
+        }
+        // axios.get(`/api/document_types/${route.params.id}`)
+        //     .then(response => {
+        //         documentType.value = response.data;
+        //         entity.value = {...documentType.value}
+        //     })
+        //     .catch(error => {
+        //         setAlert(alertMessage, alertType, error.message, "error");
+        //     })
     }
 })
 </script>
@@ -139,6 +126,7 @@ onMounted(() => {
 </template>
 <style scoped>
 .alert {
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;

@@ -2,12 +2,14 @@
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {deleteDocumentTypes, fetchDocumentTypes} from "../services/documentTypeService.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let documentTypes = ref([]);
 
 const dialogDelete = ref(false);
-let alertMessage = ref('');
-let alertType = ref('');
 
 let headers = ref([
     {title: "Код", value: "id", sortable: true},
@@ -28,26 +30,21 @@ function editItem(item) {
     router.push(`/document_types/${item.id}/edit`)
 }
 
-function deleteItemConfirm(id) {
-    axios.delete(`/document_types/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            documentTypes.value = documentTypes.value.filter(documentType => documentType.id !== id);;
-            setAlert(alertMessage, alertType, "Тип документа удален", "success")
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-        })
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteDocumentTypes(id));
+    setAlert(alertMessage, alertType, success ? "Тип документа удален" : message, success ? "success" : "error")
+    if (success) {
+        dialogDelete.value = false;
+        documentTypes.value = documentTypes.value.filter(documentType => documentType.id !== id);
+    }
 }
 
-onMounted(() => {
-    axios.get('/api/document_types')
-        .then(response => {
-            documentTypes.value = response.data;
-        })
-        .catch(error => {
-            console.log(error)
-        })
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchDocumentTypes());
+    setAlert(alertMessage, alertType, message, "error")
+    if (success) {
+        documentTypes.value = data;
+    }
 })
 </script>
 
