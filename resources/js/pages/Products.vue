@@ -2,6 +2,10 @@
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchProducts, deleteProduct} from "../services/productServices.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let products = ref([]);
 
@@ -21,30 +25,14 @@ const editedItem = ref({
 })
 
 const dialogDelete = ref(false)
-const alertMessage = ref('')
-const alertType = ref('')
 
-onMounted(() => {
-    axios.get("/api/products")
-        .then(response => {
-            products.value = response.data;
-        })
-        .catch(e => {
-            console.log(e);
-        })
-});
-
-
-function deleteItemConfirm(id) {
-    axios.delete(`/products/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            products.value = products.value.filter(product => product.id !== id)
-            setAlert(alertMessage, alertType, "Товар удален.", "success")
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-        });
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteProduct());
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        dialogDelete.value = false;
+        products.value = products.value.filter(product => product.id !== id)
+    }
 }
 
 function addItem() {
@@ -54,6 +42,14 @@ function addItem() {
 function editItem(item) {
     router.push(`/products/${item.id}/edit`)
 }
+
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchProducts());
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        products.value = data
+    }
+});
 </script>
 
 <template>
@@ -66,6 +62,7 @@ function editItem(item) {
         max-width="500">
     </v-alert>
     <w-table
+        v-if="products.length"
         :headers="headers"
         :items="products"
         :editedItem="editedItem"
@@ -80,10 +77,10 @@ function editItem(item) {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>

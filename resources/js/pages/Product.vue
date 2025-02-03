@@ -4,6 +4,10 @@ import router from "../router/index.js";
 import {useRoute} from "vue-router";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule} from "../helpers/validationRules.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchMeasuringUnits, fetchProduct, postProduct, updateProduct} from "../services/productServices.js";
+
+const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const route = useRoute();
 
@@ -14,54 +18,20 @@ const entity = ref({
     measuring_unit_id: null,
 });
 
-const alertMessage = ref('');
-const alertType = ref('');
-const errors = ref({});
-
 const unitsOfMeasuring = ref([]);
+const rules = [requireRule];
 
-onMounted(() => {
-    axios.get("/api/measuring_units").then(response => {
-        unitsOfMeasuring.value = response.data;
-    })
-        .catch(e => {
-            console.log(e);
-        })
-    if (route.params.id) {
-        axios.get(`/api/product/${route.params.id}`)
-            .then(response => {
-                product.value = response.data
-                entity.value = {...product.value}
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
-    }
-});
+const formTitle = computed(() => {
+    return route.params.id ? "Редактировать товар" : "Добавить товар"
+})
 
-function save() {
+async function save() {
     if (route.params.id) {
-        axios.put(`/products/${route.params.id}`, entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Товар изменен.", "success");;
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
+        const {success, message} = await handlerResponse(updateProduct(route.params.id, entity.value));
+        setAlert(alertMessage, alertType, success ? "Товар добавлен." : message, success ? "success" : "error");
     } else {
-        axios.post("/products", entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Товар добавлен.", "success");;
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
+        const {success, message} = await handlerResponse(postProduct(entity.value));
+        setAlert(alertMessage, alertType, success ? "Товар добавлен." : message, success ? "success" : "error");
     }
 }
 
@@ -69,12 +39,17 @@ function back() {
     router.back();
 }
 
-const rules = [requireRule];
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchMeasuringUnits());
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) unitsOfMeasuring.value = data;
 
-const formTitle = computed(() => {
-    return route.params.id ? "Редактировать товар" : "Добавить товар"
-})
-
+    if (route.params.id) {
+        const {success, message, data} = await handlerResponse(fetchProduct(route.params.id));
+        setAlert(alertMessage, alertType, message, "error");
+        if (success) entity.value = data;
+    }
+});
 </script>
 
 <template>
@@ -146,9 +121,10 @@ const formTitle = computed(() => {
 </template>
 <style scoped>
 .alert {
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>
