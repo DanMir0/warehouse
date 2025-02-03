@@ -4,19 +4,17 @@ import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule} from "../helpers/validationRules.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchMeasuringUnit, updateMeasuringUnit, postMeasuringUnit} from "../services/measuringUnitService.js";
+
+const {alertMessage, alertType, handlerResponse, errors} = useFormHandler()
 
 const route = useRoute();
-
-const measuringUnit = ref()
 
 const entity = ref({
     id: null,
     name: null,
 });
-
-const alertMessage = ref('');
-const alertType = ref('');
-const errors = ref({});
 
 const rules = [requireRule]
 
@@ -24,49 +22,29 @@ const formTitle = computed(() => {
     return route.params.id ? "Редактировать единицу измерения" : "Добавить единицу измерения";
 })
 
-onMounted(() => {
-    if (route.params.id) {
-        axios.get(`/api/measuring_units/${route.params.id}`)
-            .then(response => {
-                measuringUnit.value = response.data
-                entity.value = {...measuringUnit.value}
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
-    }
-})
-
 function back() {
     router.back();
 }
 
-function save() {
+async function save() {
     if (route.params.id) {
-        axios.put(`/measuring_units/${route.params.id}`, entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Единица измерения изменена.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
+        const {success, message} = await handlerResponse(updateMeasuringUnit(route.params.id, entity.value));
+        setAlert(alertMessage, alertType, success ? "Единица измерения обновлена." : message, success ? "success" : "error");
     } else {
-        axios.post("/measuring_units", entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Единица измерения добавлена.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message} = await handlerResponse(postMeasuringUnit(entity.value));
+        setAlert(alertMessage, alertType, success ? "Единица измерения добавлена." : message, success ? "success" : "error");
     }
 }
 
+onMounted(async () => {
+    if (route.params.id) {
+        const {success, message, data} = await handlerResponse(fetchMeasuringUnit(route.params.id));
+        setAlert(alertMessage, alertType, message, "error");
+        if (success) {
+            entity.value = {...data};
+        }
+    }
+})
 </script>
 <template>
     <v-alert
@@ -125,9 +103,10 @@ function save() {
 </template>
 <style scoped>
 .alert {
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>

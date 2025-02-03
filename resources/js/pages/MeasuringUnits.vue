@@ -1,13 +1,13 @@
 <script setup>
-import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchMeasuringUnits, deleteMeasuringUnit} from "../services/measuringUnitService.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler();
 
 const measuringUnits = ref([]);
-
-const alertMessage = ref("");
-const alertType = ref("");
 
 const dialogDelete = ref(false)
 
@@ -22,13 +22,6 @@ const editedItem = ref({
     name: "",
 })
 
-onMounted(() => {
-    axios.get("/api/measuring_units")
-        .then(response => {
-            measuringUnits.value = response.data
-        })
-})
-
 function addItem() {
     router.push("/measuring_units/create")
 }
@@ -37,17 +30,22 @@ function editItem(item) {
     router.push(`/measuring_units/${item.id}/edit`)
 }
 
-function deleteItemConfirm(id) {
-    axios.delete(`/measuring_units/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            measuringUnits.value = measuringUnits.value.filter(measuringUnit => measuringUnit.id !== id);
-            setAlert(alertMessage, alertType, "Единица измерения удалена.", "success")
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-        });
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteMeasuringUnit(id));
+    setAlert(alertMessage, alertType, success ? "Единица измерения удалена." : message, success ? "success" : "error");
+    if (success) {
+        dialogDelete.value = false;
+        measuringUnits.value = measuringUnits.value.filter(measuringUnit => measuringUnit.id !== id);
+    }
 }
+
+onMounted(async () => {
+    const {message, success, data} = await handlerResponse(fetchMeasuringUnits());
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        measuringUnits.value = data;
+    }
+})
 </script>
 
 <template>
@@ -60,6 +58,7 @@ function deleteItemConfirm(id) {
         max-width="500">
     </v-alert>
     <w-table
+        v-if="measuringUnits.length"
         title="Единицы измерения"
         btn-icon="mdi-beaker-plus-outline"
         :headers="headers"
