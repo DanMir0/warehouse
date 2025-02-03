@@ -72,10 +72,10 @@ onMounted(async () => {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>

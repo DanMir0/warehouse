@@ -48,14 +48,6 @@ onMounted(async () => {
         if (success) {
             entity.value = data;
         }
-        // axios.get(`/api/document_types/${route.params.id}`)
-        //     .then(response => {
-        //         documentType.value = response.data;
-        //         entity.value = {...documentType.value}
-        //     })
-        //     .catch(error => {
-        //         setAlert(alertMessage, alertType, error.message, "error");
-        //     })
     }
 })
 </script>
@@ -126,10 +118,10 @@ onMounted(async () => {
 </template>
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>
