@@ -6,7 +6,7 @@
  * @param {number} delay - Задержка перед очитской сообщений (в миллисекундах)
  */
 
-export function setAlert(alertMessageRef, alertTypeRef, message, type, delay= 4000) {
+export function setAlert(alertMessageRef, alertTypeRef, message, type, delay = 4000) {
     alertMessageRef.value = message;
     alertTypeRef.value = type;
 
@@ -49,14 +49,19 @@ export function compareObjData(obj1, obj2) {
     return true; // Всё совпадает;
 }
 
-export function formatPhone(value) {
-    const cleaned = value.replace(/\D/g, ""); // Удаляем всё, кроме цифр
+export function formatPhoneForServer(value) {
+    const cleaned = value.replace(/\D/g, ""); // Очищаем от всего кроме цифр
+    if (cleaned.startsWith("8")) {
+        return `+7${cleaned.slice(1)}`;
+    } else if (cleaned.startsWith("7")) {
+        return `+7${cleaned.slice(1)}`;
+    }
+    return `+7${cleaned}`;
+}
 
-    let result = "+7";
-    if (cleaned.length > 1) result += ` (${cleaned.slice(1, 4)}`;
-    if (cleaned.length > 4) result += `) ${cleaned.slice(4, 7)}`;
-    if (cleaned.length > 7) result += `-${cleaned.slice(7, 9)}`;
-    if (cleaned.length > 9) result += `-${cleaned.slice(9, 11)}`;
+export function formatPhoneForDisplay(value) {
+    const cleaned = value.replace(/\D/g, "");
+    if (cleaned.length < 11) return value;
 
-    return result;
+    return `+7 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7, 9)}-${cleaned.slice(9, 11)}`;
 }
