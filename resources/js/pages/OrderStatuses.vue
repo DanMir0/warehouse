@@ -2,6 +2,10 @@
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
+import {fetchOrderStatuses, deleteOrderStatuses} from "../services/orderStatusService.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let orderStatuses = ref([]);
 
@@ -12,22 +16,10 @@ let headers = ref([
 ]);
 
 const dialogDelete = ref(false);
-let alertMessage = ref('');
-let alertType = ref('');
 
 const editedItem = ref({
     id: 0,
     name: "",
-})
-
-onMounted(() => {
-    axios.get('api/order_statuses')
-        .then(response => {
-            orderStatuses.value = response.data;
-        })
-        .catch(error => {
-            console.log(error);
-        })
 })
 
 function addItem() {
@@ -38,17 +30,22 @@ function editItem(item) {
     router.push(`order_statuses/${item.id}/edit`)
 }
 
-function deleteItemConfirm(id) {
-    axios.delete(`/order_statuses/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            orderStatuses.value = orderStatuses.value.filter(orderStatus => orderStatus.id !== id);
-            setAlert(alertMessage, alertType, "Статус заказа удален.", "success")
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-        })
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteOrderStatuses(id));
+    setAlert(alertMessage, alertType, success ? "Статус заказа удален." : message, success ? "success" : "error");
+    if (success) {
+        dialogDelete.value = false;
+        orderStatuses.value = orderStatuses.value.filter(orderStatus => orderStatus.id !== id);
+    }
 }
+
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchOrderStatuses())
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        orderStatuses.value = data
+    }
+})
 </script>
 
 <template>
@@ -61,6 +58,7 @@ function deleteItemConfirm(id) {
         max-width="500">
     </v-alert>
     <w-table
+        v-if="orderStatuses.length"
         title="Статусы производства"
         btn-icon="mdi-plus"
         :headers="headers"
@@ -75,10 +73,10 @@ function deleteItemConfirm(id) {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>

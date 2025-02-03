@@ -4,14 +4,12 @@ import {computed, onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {requireRule} from "../helpers/validationRules.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchOrderStatus, postOrderStatus, updateOrderStatus} from "../services/orderStatusService.js";
 
-const alertMessage = ref('');
-const alertType = ref('');
-const errors = ref({});
+const {alertMessage, alertType, handlerResponse, errors} = useFormHandler()
 
 const route = useRoute();
-
-const orderStatus = ref([])
 
 const entity = ref({
     name: null,
@@ -23,45 +21,26 @@ const formTitle = computed(() => {
     return route.params.id ? "Редактировать статус заказа" : "Добавить статус заказа";
 })
 
-function save() {
+async function save() {
     errors.value = {};
     alertMessage.value = '';
 
     if (route.params.id) {
-        axios.put(`/order_statuses/${route.params.id}`, entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Статус заказа изменен.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message } = await handlerResponse(updateOrderStatus(route.params.id, entity.value))
+        setAlert(alertMessage, alertType, success ? "Статус заказа обновлен." : message, success ? "success" : "error");
     } else {
-        axios.post("/order_statuses", entity.value)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Статус заказа добавлен.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message } = await handlerResponse(postOrderStatus(entity.value))
+        setAlert(alertMessage, alertType, success ? "Статус заказа добавлен." : message, success ? "success" : "error");
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
     if (route.params.id) {
-        axios.get(`/api/order_statuses/${route.params.id}`)
-            .then(response => {
-                orderStatus.value = response.data;
-                entity.value = {...orderStatus.value};
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message, data} = await handlerResponse(fetchOrderStatus(route.params.id));
+        setAlert(alertMessage, alertType, message, "error");
+        if (success) {
+            entity.value = {...data};
+        }
     }
 })
 
@@ -128,9 +107,10 @@ function back() {
 
 <style scoped>
 .alert {
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>
