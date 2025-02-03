@@ -43,7 +43,6 @@ async function save() {
 
     if (route.params.id) {
         const {success, message} = await handlerResponse(updateCounterparty(route.params.id, entity.value));
-        console.log(entity.value)
         setAlert(alertMessage, alertType, success ? "Контрагент изменен." : message, success ? "success" : "error");
     } else {
         const {success, message} = await handlerResponse(postCounterparty(entity.value));
