@@ -2,13 +2,15 @@
 import WTable from "../components/WTable.vue";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
-import {formatPhone, setAlert} from "../helpers/helpers.js";
+import {formatPhoneForDisplay, setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {fetchCounterparties, deleteCounterparties} from "../services/counterpartyService.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let counterparties = ref([]);
 
 const dialogDelete = ref(false);
-let alertMessage = ref('');
-let alertType = ref('');
 
 const headers = ref([
     {title: "Код", value: "id", sortable: true},
@@ -37,31 +39,26 @@ function editItem(item) {
     router.push(`/counterparties/${item.id}/edit`)
 }
 
-function deleteItemConfirm(id) {
-    axios.delete(`counterparties/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            counterparties.value = counterparties.value.filter(counterparty => counterparty.id !== id);
-            setAlert(alertMessage, alertType, "Контрагент удален", "success")
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-        })
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteCounterparties(id));
+    setAlert(alertMessage, alertType, success ? "Контрагент удален." : message, success ? "success" : "error");
+    if (success) {
+        dialogDelete.value = false;
+        counterparties.value = counterparties.value.filter(counterparty => counterparty.id !== id);
+    }
 }
 
-onMounted(() => {
-    axios.get('/api/counterparties')
-        .then(response => {
-            counterparties.value = response.data.map(counterparty => {
-                return {
-                    ...counterparty,
-                    contact_info: formatPhone(counterparty.contact_info)
-                }
-            })
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchCounterparties());
+    setAlert(alertMessage, alertType, message, "error")
+    if (success) {
+        counterparties.value = data.map(counterparty => {
+            return {
+                ...counterparty,
+                contact_info: formatPhoneForDisplay(counterparty.contact_info)
+            }
         })
-        .catch(error => {
-            console.log(error)
-        })
+    }
 })
 </script>
 
@@ -75,6 +72,7 @@ onMounted(() => {
         max-width="500">
     </v-alert>
     <w-table
+        v-if="counterparties.length"
         title="Контрагенты"
         btn-icon="mdi-account-plus"
         :headers="headers"
@@ -89,10 +87,10 @@ onMounted(() => {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>
