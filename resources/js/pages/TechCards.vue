@@ -3,12 +3,14 @@ import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import {formatDate} from "../helpers/helpers.js";
 import {setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {deleteTechCard, fetchTechCards} from "../services/tehcCardServices.js";
+
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 const techCards = ref([]);
 
 const dialogDelete = ref(false);
-const alertMessage = ref("");
-const alertType = ref("");
 
 let headers = ref([
     {title: "Код", value: "id", sortable: true},
@@ -35,30 +37,25 @@ function editItem(item) {
     router.push(`/tech_cards/${item.id}/edit`)
 }
 
-function deleteItemConfirm(id) {
-    axios.delete(`/tech_cards/${id}`)
-        .then(response => {
-            dialogDelete.value = false;
-            techCards.value = techCards.value.filter(item => item.id !== id);
-            setAlert(alertMessage, alertType,"Тех карта удалена", "success");
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType,error.message, "error");
-        })
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteTechCard(id))
+    setAlert(alertMessage, alertType, success ? "Тех карта удалена." : message, success ? "success" : "error");
+    if (success) {
+        dialogDelete.value = false;
+        techCards.value = techCards.value.filter(techCard => techCard.id !== id);
+    }
 }
 
-onMounted(() => {
-    axios.get("/api/tech_cards")
-        .then(response => {
-            techCards.value = response.data.map(item => ({
-                ...item,
-                created_at: formatDate(item.created_at),
-                updated_at: formatDate(item.updated_at),
-            }));
-        })
-        .catch(error => {
-            console.error(error);
-        })
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchTechCards())
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        techCards.value = data.map(techCard => ({
+            ...techCard,
+            created_at: formatDate(techCard.created_at),
+            updated_at: formatDate(techCard.updated_at),
+        }))
+    }
 })
 </script>
 
@@ -72,6 +69,7 @@ onMounted(() => {
         max-width="500">
     </v-alert>
     <w-table
+        v-if="techCards.length"
         :headers="headers"
         :items="techCards"
         :editedItem="editedItem"
@@ -86,10 +84,10 @@ onMounted(() => {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>

@@ -5,13 +5,17 @@ import router from "../router/index.js";
 import WChildProductsTable from "../components/WChildProductsTable.vue";
 import {setAlert, compareObjData, formatDate} from "../helpers/helpers.js";
 import {requireRule} from "../helpers/validationRules.js";
+import {fetchProducts, fetchTechCard, fetchTechCardProduct, postTechCard, updateTechCard} from "../services/tehcCardServices.js";
+import useFormHandler from "../composoble/useFormHandler.js";
 
+const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 const route = useRoute();
 
 const products = ref();
 const selectedProducts = ref([]);
 const techCard = ref();
-const defaultSelectedProducts = ref([])
+const defaultSelectedProducts = ref([]);
+const deletedProducts = ref([]);
 
 const entity = ref({
     name: null,
@@ -19,10 +23,6 @@ const entity = ref({
     created_at: null,
     updated_at: null,
 });
-
-const alertMessage = ref("");
-const alertType = ref("");
-const errors = ref({});
 
 const formTitle = computed(() => route.params.id ? "Редактировать тех карту" : "Добавить тех карту");
 
@@ -32,7 +32,7 @@ function back() {
     router.back();
 }
 
-function save() {
+async function save() {
     const techCardData = {
         name: entity.value.name,
         product_id: entity.value.product_id,
@@ -65,33 +65,20 @@ function save() {
             return;
         }
 
-        axios.put(`/tech_cards/${route.params.id}`, techCardData)
-            .then(response => {
-                deletedProducts.value = []
-                setAlert(alertMessage, alertType, "Тех карта обновлена.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+        const {success, message} = await handlerResponse(updateTechCard(route.params.id, techCardData))
+        setAlert(alertMessage, alertType, success ? "Тех карта обновлена." : message, success ? "success" : "error");
+        if (success)
+        {
+            deletedProducts.value = [];
+        }
     } else {
-        axios.post("/tech_cards", techCardData)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Тех карта добавлена.", "success");
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 422) {
-                    errors.value = {...error.response.data.errors}
-                }
-                setAlert(alertMessage, alertType, error.message, "error");
-            });
+        const {success, message} = await handlerResponse(postTechCard(techCardData))
+        setAlert(alertMessage, alertType, success ? "Тех карта добавлена." : message, success ? "success" : "error");
     }
 }
 
 function addProduct(product) {
-    selectedProducts.value.push(product);
+    selectedProducts.value = [...selectedProducts.value, product]
 }
 
 function updatedProduct({id, product}) {
@@ -101,37 +88,32 @@ function updatedProduct({id, product}) {
     }
 }
 
-const deletedProducts = ref([])
 function deleteProduct(product) {
     deletedProducts.value.push(product.product_id)
     selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
 }
 
-onMounted(() => {
-    axios.get("/api/products")
-        .then(response => {
-            products.value = response.data;
-        })
-        .catch(error => {
-            console.error(error);
-        })
+onMounted(async () => {
+    const productResponse = await handlerResponse(fetchProducts())
+    setAlert(alertMessage, alertType, productResponse.message, "error");
+    if (productResponse.success) {
+        products.value = productResponse.data;
+    }
+
     if (route.params.id) {
-        axios.get(`/api/tech_cards/${route.params.id}`)
-            .then(response => {
-                techCard.value = response.data;
-                entity.value = {...techCard.value}
-            })
-            .catch(error => {
-                console.log(error);
-            })
-        axios.get(`/api/tech_card_products/${route.params.id}`)
-            .then(response => {
-                selectedProducts.value = response.data
-                defaultSelectedProducts.value = [...selectedProducts.value]
-            })
-            .catch(error => {
-                console.error(error);
-            })
+        const techCardResponse = await handlerResponse(fetchTechCard(route.params.id));
+        setAlert(alertMessage, alertType, techCardResponse.message, "error");
+        if (techCardResponse.success) {
+            techCard.value = techCardResponse.data;
+            entity.value = {...techCard.value};
+        }
+
+        const productCardResponse = await handlerResponse(fetchTechCardProduct(route.params.id));
+        setAlert(alertMessage, alertType, productCardResponse.message, "error");
+        if (productCardResponse.success) {
+            selectedProducts.value = productCardResponse.data;
+            defaultSelectedProducts.value = [...selectedProducts.value]
+        }
     }
 })
 </script>
@@ -201,6 +183,7 @@ onMounted(() => {
                     <v-row>
                         <v-col cols="12">
                             <w-child-products-table
+                                v-if="selectedProducts.length"
                                 :items="selectedProducts"
                                 :defaultSelectedProducts="defaultSelectedProducts"
                                 @add-product="addProduct"
@@ -232,10 +215,10 @@ onMounted(() => {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px;
 }
 </style>
