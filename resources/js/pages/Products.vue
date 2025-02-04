@@ -28,7 +28,7 @@ const dialogDelete = ref(false)
 
 async function deleteItemConfirm(id) {
     const {success, message} = await handlerResponse(deleteProduct());
-    setAlert(alertMessage, alertType, message, "error");
+    setAlert(alertMessage, alertType, success ? "Товар удален." : message, success ? "success" : "error");
     if (success) {
         dialogDelete.value = false;
         products.value = products.value.filter(product => product.id !== id)
