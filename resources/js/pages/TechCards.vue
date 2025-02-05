@@ -6,7 +6,7 @@ import {setAlert} from "../helpers/helpers.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import {deleteTechCard, fetchTechCards} from "../services/tehcCardServices.js";
 
-const {alertMessage, alertType, handlerResponse} = useFormHandler()
+const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const techCards = ref([]);
 
@@ -40,10 +40,13 @@ function editItem(item) {
 async function deleteItemConfirm(id) {
     const {success, message} = await handlerResponse(deleteTechCard(id))
     setAlert(alertMessage, alertType, success ? "Тех карта удалена." : message, success ? "success" : "error");
+    dialogDelete.value = false;
     if (success) {
-        dialogDelete.value = false;
         techCards.value = techCards.value.filter(techCard => techCard.id !== id);
+    } else {
+        setAlert(alertMessage, alertType, errors.value, "error", 6000);
     }
+
 }
 
 onMounted(async () => {

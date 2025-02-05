@@ -86,13 +86,25 @@ class TechCardController extends Controller
 
     public function destroy($id)
     {
-        $tech_card = TechCard::find($id);
+        try {
+            $tech_card = TechCard::findOrFail($id);
+            if ($tech_card) {
+                $tech_card->productTechCards()->delete();
 
-        if ($tech_card) {
-            $tech_card->productTechCards()->delete();
-
-            $tech_card->delete();
+                $tech_card->delete();
+            }
+        } catch (\Exception $e) {
+            if ($this->isForeignKeyConstraintViolation($e)) {
+                return response()->json([
+                    'message' => 'Невозможно удалить тех карту, так как она используется в заказах. Пожалуйста, удалите записи из заказов перед удалением.'
+                ], 500);
+            }
         }
+    }
+
+    private function isForeignKeyConstraintViolation(\Exception $e): bool
+    {
+        return str_contains($e->getMessage(), 'FOREIGN KEY constraint failed');
     }
 
     public function update(Request $request, $id)

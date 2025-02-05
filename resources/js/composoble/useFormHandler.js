@@ -8,11 +8,13 @@ export default function useFormHandler() {
     const handlerResponse = async (promise, successMessage, errorMessage = "Не удалось получить данные!") => {
         try {
             const response = await promise;
-            // return response.data;
+
             return {success: true, data: response.data}
         } catch (error) {
             if (error.response?.status === 422) {
                 errors.value = { ...error.response.data.errors };
+            } else if (error.response?.status === 500) {
+                errors.value = error.response.data.message
             }
             return { success: false, message: error.message };        }
     };

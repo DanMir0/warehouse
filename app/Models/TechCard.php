@@ -12,6 +12,6 @@ class TechCard extends Model
 
     public function productTechCards()
     {
-        return $this->hasMany(OrderTechCard::class, 'tech_card_id');
+        return $this->hasMany(TechCardProduct::class, 'tech_card_id');
     }
 }
