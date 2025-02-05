@@ -1,10 +1,12 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
-import {formatDate} from "../helpers/helpers.js";
+import {formatDate, setAlert} from "../helpers/helpers.js";
+import useFormHandler from "../composoble/useFormHandler.js";
+import {deleteOrder, fetchOrders} from "../services/orderServices.js";
 
-const alertMessage = ref("");
-const alertType = ref("");
+const {alertMessage, alertType, handlerResponse} = useFormHandler()
+
 const dialogDelete = ref(false);
 const orders = ref([]);
 const headers = ref([
@@ -17,6 +19,15 @@ const headers = ref([
     {title: "Действия", value: "actions"},
 ]);
 
+const editedItem = ref({
+    id: 0,
+    order_status_name: null,
+    counterparty_name: null,
+    created_at: null,
+    updated_at: null,
+    finished_at: null,
+})
+
 function addItem() {
     router.push("/orders/create")
 }
@@ -25,18 +36,25 @@ function editItem(item) {
     router.push(`/orders/${item.id}/edit`)
 }
 
-onMounted(() => {
-    axios.get("/api/orders")
-        .then(response => {
-            orders.value = response.data.map(item => ({
-                ...item,
-                created_at: formatDate(item.created_at),
-                updated_at: formatDate(item.updated_at)
-            }))
-        })
-        .catch(error => {
-            console.error(error);
-        })
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteOrder(id));
+    setAlert(alertMessage, alertType, success ? "Заказ удален." : message, success ? "success" : "error");
+    if (success) {
+        dialogDelete.value = false;
+        orders.value = orders.value.filter(order => order.id !== id);
+    }
+}
+
+onMounted(async () => {
+    const {success, message, data} = await handlerResponse(fetchOrders());
+    setAlert(alertMessage, alertType, message, "error");
+    if (success) {
+        orders.value = data.map(order => ({
+            ...order,
+            created_at: formatDate(order.created_at),
+            updated_at: formatDate(order.updated_at),
+        }))
+    }
 })
 </script>
 
@@ -54,7 +72,7 @@ onMounted(() => {
         btn-icon="mdi-plus"
         :headers="headers"
         :items="orders"
-        :edited-item="editedItem"
+        :editedItem="editedItem"
         v-model="dialogDelete"
         @add-item="addItem"
         @edit-item="editItem"

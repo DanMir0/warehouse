@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderTechCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use mysql_xdevapi\Exception;
 
 class OrderController extends Controller
 {
@@ -185,5 +184,16 @@ class OrderController extends Controller
             return response()->json(['message' => 'Ошибка при обновлении статуса.', 'error' => $e->getMessage()], 500);
         }
 
+    }
+
+    public function destroy($id)
+    {
+        $order = Order::find($id);
+
+        if ($order) {
+            $order->ordersTechCards()->delete();
+
+            $order->delete();
+        }
     }
 }

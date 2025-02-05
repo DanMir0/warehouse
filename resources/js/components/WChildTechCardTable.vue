@@ -2,7 +2,7 @@
 import {computed, onMounted, ref,} from "vue";
 import {useRoute} from "vue-router";
 
-const props =  defineProps({selectedProducts: Array, defaultSelectedProducts: Array})
+const props = defineProps({selectedProducts: Array})
 
 const emit = defineEmits(['add-product', 'updated-product', 'delete-products'])
 
@@ -63,17 +63,8 @@ function save() {
             errors.value.quantity = "Вы не поменяли количество."
             return;
         }
-        emit("updated-product", { id: editedItem.value.id, ...newProduct}, defaultProduct.value );
+        emit("updated-product", {id: editedItem.value.id, ...newProduct}, defaultProduct.value);
     } else {
-        // Проверяем, есть ли уже добавленный продукт с таким же tech_card_id
-        const duplicateProduct = props.defaultSelectedProducts.some(
-            (product) => product.product_name === editedItem.value.product_name
-        );
-
-        if (duplicateProduct) {
-            errors.value.product = "Этот товар уже добавлен.";
-            return;
-        }
         emit("add-product", newProduct);
     }
     clearForm()

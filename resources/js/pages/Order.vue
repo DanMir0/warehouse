@@ -5,9 +5,16 @@ import router from "../router/index.js";
 import {setAlert} from "../helpers/helpers.js";
 import {formatDate} from "../helpers/helpers.js";
 import {STATUS_FINISHED, STATUS_IN_PROGRESS, STATUS_NEW, STATUS_ISSUED} from "../helpers/common/order_statuses.js";
+import {
+    fetchCounterparties,
+    fetchOrder,
+    fetchOrderStatuses,
+    fetchOrderTechCard, postOrder, updateOrder, updateOrderStatus
+} from "../services/orderServices.js";
+import useFormHandler from "../composoble/useFormHandler.js";
 
-const alertMessage = ref("")
-const alertType = ref("")
+const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
+
 const route = useRoute();
 const entity = ref({
     order_status_id: 1,
@@ -16,18 +23,16 @@ const entity = ref({
     updated_at: null,
     finished_at: null,
 });
-const errors = ref({});
 const counterparties = ref([]);
 const tab = ref();
 const orderStatuses = ref([]);
 const selectedProducts = ref([]);
 const deleteProducts = ref([]);
-const defaultSelectedProducts = ref([])
-
-
 const dialog = ref(false)
 const dialogMessage = ref("")
 const orderStatus = ref(null)
+
+const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
 
 function openDialog(status, message) {
     orderStatus.value = status;
@@ -35,30 +40,27 @@ function openDialog(status, message) {
     dialog.value = true;
 }
 
-function confirmAction() {
+async function confirmAction() {
     if (!orderStatus.value) return;
-
-    axios.put(`/api/orders/${route.params.id}`, {order_status_id: orderStatus.value})
-        .then(response => {
-            setAlert(alertMessage, alertType, "Заказ в производстве!", "success")
-
-            entity.value.order_status_id = response.data.order.order_status_id
-            console.log(entity.value)
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, error.message, "error")
-
-        })
-        .finally(() => {
-            dialog.value = false;
-        })
+    const {
+        success,
+        message,
+        data
+    } = await handlerResponse(updateOrderStatus(route.params.id, {order_status_id: orderStatus.value}))
+    setAlert(alertMessage, alertType, success ? "Статус изменен!" : message, success ? "success" : "error")
+    if (success) {
+        entity.value.order_status_id = data.order.order_status_id;
+    }
+    dialog.value = false;
 }
 
-
-const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
-
 function addProduct(product) {
-    selectedProducts.value.push(product)
+    let isSelectedProduct = selectedProducts.value.findIndex(p => p.product_id === product.product_id)
+    if (!isSelectedProduct) {
+        setAlert(alertMessage, alertType, "Вы уже добавили этот товар.", "error")
+    } else {
+        selectedProducts.value.push(product)
+    }
 }
 
 function updatedProduct(product, defaultProduct) {
@@ -72,7 +74,7 @@ function back() {
     router.back();
 }
 
-function save() {
+async function save() {
     const orderData = {
         order_status_id: entity.value.order_status_id,
         counterparty_id: entity.value.counterparty_id,
@@ -87,22 +89,14 @@ function save() {
     }
 
     if (route.params.id) {
-        axios.put(`/orders/${route.params.id}`, orderData)
-            .then(response => {
-                deleteProducts.value = []
-                setAlert(alertMessage, alertType, "Заказ обновлен!", "success")
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error")
-            })
+        const {success, message} = await handlerResponse(updateOrder(route.params.id, orderData));
+        setAlert(alertMessage, alertType, success ? "Заказ обновлен." : message, success ? "success" : "error");
+        if (success) {
+            deleteProducts.value = [];
+        }
     } else {
-        axios.post("/orders", orderData)
-            .then(response => {
-                setAlert(alertMessage, alertType, "Заказ добавлен.", "success");
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error")
-            })
+        const {success, message} = await handlerResponse(postOrder(orderData));
+        setAlert(alertMessage, alertType, success ? "Заказ добавлен." : message, success ? "success" : "error");
     }
 }
 
@@ -111,38 +105,31 @@ function deleteProduct(product) {
     selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
 }
 
-onMounted(() => {
-    axios.get("/api/counterparties")
-        .then(response => {
-            counterparties.value = response.data
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, "Не удалось получить данные о контрагентов.", "error");
-        })
-    axios.get("/api/order_statuses")
-        .then(response => {
-            orderStatuses.value = response.data
-        })
-        .catch(error => {
-            setAlert(alertMessage, alertType, "Не удалось получить данные о статусах зазаказ.", "error");
-        })
-    if (route.params.id) {
-        axios.get(`/api/orders/${route.params.id}`)
-            .then(response => {
-                entity.value = response.data
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
-        axios.get(`/api/order_tech_card/${route.params.id}`)
-            .then(response => {
-                selectedProducts.value = response.data
-                defaultSelectedProducts.value = response.data
+onMounted(async () => {
+    const responseCounterparties = await handlerResponse(fetchCounterparties());
+    setAlert(alertMessage, alertType, responseCounterparties.message, "error");
+    if (responseCounterparties.success) {
+        counterparties.value = responseCounterparties.data;
+    }
 
-            })
-            .catch(error => {
-                setAlert(alertMessage, alertType, error.message, "error");
-            })
+    const responseOrderStatuses = await handlerResponse(fetchOrderStatuses());
+    setAlert(alertMessage, alertType, responseOrderStatuses.message, "error");
+    if (responseOrderStatuses.success) {
+        orderStatuses.value = responseOrderStatuses.data;
+    }
+
+    if (route.params.id) {
+        const responseOrder = await handlerResponse(fetchOrder(route.params.id));
+        setAlert(alertMessage, alertType, responseOrder.message, "error");
+        if (responseOrder.success) {
+            entity.value = responseOrder.data
+        }
+
+        const responseOrderTechCard = await handlerResponse(fetchOrderTechCard(route.params.id));
+        setAlert(alertMessage, alertType, responseOrderTechCard.message, "error");
+        if (responseOrderTechCard.success) {
+            selectedProducts.value = responseOrderTechCard.data;
+        }
     }
 })
 </script>
@@ -245,11 +232,9 @@ onMounted(() => {
                                             value="products">
                                             <w-child-tech-card-table
                                                 :items="selectedProducts"
-                                                :defaultSelectedProducst="defaultSelectedProducts"
                                                 @updated-product="updatedProduct"
                                                 @add-product="addProduct"
                                                 @delete-products="deleteProduct">
-
                                             </w-child-tech-card-table>
                                         </v-tabs-window-item>
 
@@ -325,10 +310,11 @@ onMounted(() => {
 
 <style scoped>
 .alert {
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 50% 20% / 10% 40%;
+    border-radius: 8px
 }
 
 .custom-tabs .v-tab {
