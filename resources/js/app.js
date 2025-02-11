@@ -14,6 +14,7 @@ import router from "./router/index.js";
 import WChildProductsTable from "./components/WChildProductsTable.vue";
 import WChildTechCardTable from "./components/WChildTechCardTable.vue";
 import WChildDocumentsTable from "@/components/WChildDocumentsTable.vue";
+import WChildProductTable from "./components/WChildProductTable.vue";
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin

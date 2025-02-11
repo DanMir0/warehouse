@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Common\OrderStatuses;
 use App\Models\Order;
 use App\Models\OrderTechCard;
 use Illuminate\Http\Request;
@@ -170,15 +171,24 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            $oder = Order::findOrFail($id);
+            $order = Order::findOrFail($id);
 
-            $oder->update([
+            $order->update([
                'order_status_id' => $validated['order_status_id'],
             ]);
 
+            // Обработка смены статуса и создание документа
+            $document_controller = new DocumentController();
+
+            switch ($validated['order_status_id']) {
+                case OrderStatuses::STATUS_IN_PROGRESS:
+                    $document_controller->generateProductionDocument($order);
+                    break;
+            }
+
             DB::commit();
 
-            return response()->json(['message' => 'Статус заказа успешно обновлен', 'order' => $oder], 200);
+            return response()->json(['message' => 'Статус заказа успешно обновлен', 'order' => $order], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Ошибка при обновлении статуса.', 'error' => $e->getMessage()], 500);

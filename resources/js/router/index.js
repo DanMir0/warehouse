@@ -13,6 +13,8 @@ import TechCards from "../pages/TechCards.vue";
 import TechCard from "../pages/TechCard.vue";
 import Orders from "../pages/Orders.vue";
 import Order from "../pages/Order.vue";
+import Documents from "../pages/Documents.vue";
+import Document from "../pages/Document.vue";
 
 const routes = [
     {
@@ -117,6 +119,20 @@ const routes = [
         path: "/orders/:id/edit",
         component: Order,
         props: true,
+    },
+    {
+        path: "/documents",
+        component: Documents,
+    },
+    {
+        path: "/documents/create",
+        component: Document,
+        props: true
+    },
+    {
+        path: "/documents/:id/edit",
+        component: Document,
+        props: true
     },
 ]
 
