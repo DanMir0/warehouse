@@ -11,6 +11,7 @@ use App\Http\Controllers\TechCardProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderTechCardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentProductController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -48,10 +49,10 @@ Route::resource('/orders', OrderController::class);
 Route::get('/api/order_tech_card/{id}', [OrderTechCardController::class, 'getOrderTechCard'])->name('getOrderTechCard');
 
 Route::get('/api/documents', [DocumentController::class, 'getDocuments'])->name('getDocuments');
-Route::get('/api/document', [DocumentController::class, 'getDocument'])->name('getDocument');
+Route::get('/api/documents/{id}', [DocumentController::class, 'getDocument'])->name('getDocument');
 Route::resource('/documents', DocumentController::class);
 
-Route::post('/documents_products', [DocumentController::class, 'store']);
+Route::get('/api/documents_products/{id}', [DocumentProductController::class, 'getProducts'])->name('getProducts');
 
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue

@@ -9,7 +9,7 @@ const emit = defineEmits(['add-product', 'updatedProduct', 'deleteProduct']);
 
 const products = ref([]);
 const dialog = ref(false);
-
+const defaultProduct = ref();
 const headers = ref([
     {title: "Наименование", value: "product_name", sortable: true},
     {title: "Количество", value: "quantity", sortable: true},
@@ -26,6 +26,7 @@ const editedItem = ref({
 function editItem(item) {
     dialog.value = true
     editedItem.value = {id: item.product_id, ...item}
+    defaultProduct.value = {...editedItem.value}
 }
 
 const errors = ref({});
@@ -58,7 +59,8 @@ function save() {
     }
 
     if (editedItem.value.id !== null) {
-        emit("updatedProduct", {id: editedItem.value.id, product: newProduct})
+        console.log('xui')
+        emit("updatedProduct", {id: editedItem.value.id, product: newProduct}, defaultProduct.value)
     } else {
         const duplicateProduct = props.defaultSelectedProducts.some(
             (product) => product.product_name === editedItem.value.product_name
