@@ -2,12 +2,23 @@
 import {computed, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {setAlert} from "../helpers/helpers.js";
-import {fetchDocument, fetchDocumentTypes, fetchCounterparties} from "../services/documenServices.js";
+import {
+    fetchDocument,
+    fetchDocumentTypes,
+    fetchCounterparties,
+    fetchDocumentProducts,
+    updateDocument,
+    addDocument,
+} from "../services/documenServices.js";
 import useFormHandler from "../composoble/useFormHandler.js";
+import router from "../router/index.js";
+import WChildProductsTable from "@/components/WChildProductsTable.vue";
 
 const route = useRoute();
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
-
+const selectedProducts = ref([]);
+const defaultSelectedProducts = ref([]);
+const deleteProducts = ref([]);
 const entity = ref({
     document_type_id: null,
     counterparty_id: null,
@@ -21,20 +32,69 @@ const formTitle = computed(() => {
     return route.params.id ? "Редактировать документ" : "Добавить документ"
 })
 
-function saveProduct(product) {
-
+function addProduct(product) {
+    selectedProducts.value = [...selectedProducts.value, product]
 }
 
-function save() {
+function back() {
+    router.back()
+}
 
+function deleteProduct(product) {
+    deleteProducts.value.push(product.product_id);
+    selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id);
+}
+
+function updatedProduct(product, defaultProduct) {
+    console.log(product)
+    const index = selectedProducts.value.findIndex(p => p.product_id === defaultProduct.product_id)
+    if (index !== -1) {
+        selectedProducts.value[index] = {old_product_id: defaultProduct.product_id, ...product.product}
+    }
+    console.log(selectedProducts.value)
+}
+
+async function save() {
+
+    const documentData = {
+        document_type_id: entity.value.document_type_id,
+        counterparty_id: entity.value.counterparty_id,
+        products: selectedProducts.value.map(product => ({
+            document_id: route.params.id ? parseInt(route.params.id) : null,
+            product_id: product.product_id,
+            old_tech_card_id: product.old_product_id || null,
+            quantity: product.quantity
+        })),
+        deletedProducts: [...deleteProducts.value]
+    }
+    console.log(documentData)
+    if (route.params.id) {
+        const {success, message} = await handlerResponse(updateDocument(route.params.id, documentData))
+        setAlert(alertMessage, alertType, success ? "Документ обновлен." : message, success ? "success" : "error");
+        if (success) {
+            deleteProducts.value = [];
+        }
+    } else {
+        const {success, message} = await handlerResponse(addDocument(documentData))
+        setAlert(alertMessage, alertType, success ? "Документ создан." : message, success ? "success" : "error");
+    }
 }
 
 onMounted(async () => {
     if (route.params.id) {
-        const {success, message, data} = await handlerResponse(fetchDocument(route.params.id));
-        setAlert(alertMessage, alertType, message, "error")
-        if (success) {
-            entity.value = data;
+        console.log('eblan', route.params.id)
+        const responseDocument = await handlerResponse(fetchDocument(route.params.id));
+        setAlert(alertMessage, alertType, responseDocument.message, "error")
+        console.log('data', responseDocument)
+        if (responseDocument.success) {
+            entity.value = responseDocument.data;
+        }
+
+        const responseProductsDocument = await handlerResponse(fetchDocumentProducts(route.params.id))
+        setAlert(alertMessage, alertType, responseProductsDocument.message, "error")
+        if (responseProductsDocument.success) {
+            selectedProducts.value = responseProductsDocument.data;
+            defaultSelectedProducts.value = [...selectedProducts.value];
         }
     }
 
@@ -80,13 +140,13 @@ onMounted(async () => {
                         </v-col>
                         <v-col cols="12" sm="6" md="2">
                             <v-select
-                                v-model="entity.document_types_id"
+                                v-model="entity.document_type_id"
                                 label="Выберите тип документа"
                                 item-title="name"
                                 item-value="id"
                                 :items="documentTypes"
                                 :rules="rules"
-                                :error-messages="errors.document_types_id">
+                                :error-messages="errors.document_type_id">
                             </v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="2">
@@ -103,8 +163,12 @@ onMounted(async () => {
                     </v-row>
                     <v-row>
                         <v-col cols="12">
-                            <w-child-products-table>
-
+                            <w-child-products-table
+                                :items="selectedProducts"
+                                :defaultSelectedProducts="defaultSelectedProducts"
+                                @add-product="addProduct"
+                                @delete-product="deleteProduct"
+                                @updatedProduct="updatedProduct">
                             </w-child-products-table>
                         </v-col>
                     </v-row>

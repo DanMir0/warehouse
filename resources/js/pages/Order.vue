@@ -68,6 +68,7 @@ function updatedProduct(product, defaultProduct) {
     if (index !== -1) {
         selectedProducts.value[index] = {old_card_tech_id: defaultProduct.tech_card_id, ...product}
     }
+    console.log(selectedProducts.value)
 }
 
 function back() {

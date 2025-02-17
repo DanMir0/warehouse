@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderTechCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\DocumentController;
 
 class OrderController extends Controller
 {
@@ -178,12 +179,9 @@ class OrderController extends Controller
             ]);
 
             // Обработка смены статуса и создание документа
-            $document_controller = new DocumentController();
+            if ($validated['order_status_id'] == OrderStatuses::STATUS_IN_PROGRESS) {
+                (new DocumentController)->generateProductionDocument($order);
 
-            switch ($validated['order_status_id']) {
-                case OrderStatuses::STATUS_IN_PROGRESS:
-                    $document_controller->generateProductionDocument($order);
-                    break;
             }
 
             DB::commit();

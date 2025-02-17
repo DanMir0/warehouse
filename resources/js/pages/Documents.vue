@@ -57,7 +57,7 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
-        title="Типы документов"
+        title="Документы"
         btn-icon="mdi-file-document-plus-outline"
         :headers="headers"
         :items="documents"
