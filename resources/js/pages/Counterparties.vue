@@ -72,7 +72,6 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
-        v-if="counterparties.length"
         title="Контрагенты"
         btn-icon="mdi-account-plus"
         :headers="headers"

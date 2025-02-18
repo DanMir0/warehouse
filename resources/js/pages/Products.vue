@@ -62,7 +62,6 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
-        v-if="products.length"
         :headers="headers"
         :items="products"
         :editedItem="editedItem"

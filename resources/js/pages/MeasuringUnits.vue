@@ -58,7 +58,6 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
-        v-if="measuringUnits.length"
         title="Единицы измерения"
         btn-icon="mdi-beaker-plus-outline"
         :headers="headers"

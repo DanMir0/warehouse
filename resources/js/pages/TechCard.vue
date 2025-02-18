@@ -183,7 +183,6 @@ onMounted(async () => {
                     <v-row>
                         <v-col cols="12">
                             <w-child-products-table
-                                v-if="selectedProducts.length"
                                 :items="selectedProducts"
                                 :defaultSelectedProducts="defaultSelectedProducts"
                                 @add-product="addProduct"
