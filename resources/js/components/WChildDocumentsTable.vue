@@ -1,10 +1,9 @@
 <script setup>
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {useRoute} from "vue-router";
+import router from "../router/index.js";
 
-defineProps({selectedDocuments: Array})
-
-const emit = defineEmits(['updated-document']);
+defineProps({documents: Array})
 
 const route = useRoute();
 const errors = ref({});
@@ -13,14 +12,14 @@ const headers = ref([
     {title: "Тип документа", value: "document_type_name", sortable: true},
     {title: "Номер заказа", value: "order_id", sortable: true},
     {title: "Дата создания", value: "created_at", sortable: true},
+    {title: "Действия", value: "actions"},
 ]);
 const editedItem = ref({
     id: null,
-
 })
 
 function editItem(item) {
-
+    router.push(`/documents/${item.id}/edit`)
 }
 
 function save() {
@@ -31,7 +30,7 @@ function save() {
 <template>
     <v-data-table
         :headers="headers"
-        :items="selectedDocuments"
+        :items="documents"
         :items-per-page-text="'Строк на странице:'"
         class="elevation-1"
         :items-per-page-options="[

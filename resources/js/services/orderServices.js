@@ -9,3 +9,4 @@ export const fetchOrderTechCard = (id) => axios.get(`/api/order_tech_card/${id}`
 export const postOrder = (data) => axios.post("/orders", data);
 export const updateOrder = (id, data) => axios.put(`/orders/${id}`, data);
 export const updateOrderStatus = (id, data) => axios.put(`/api/orders/${id}`, data);
+export const fetchDocument = (id) => axios.get(`/api/orders/documents/${id}`);

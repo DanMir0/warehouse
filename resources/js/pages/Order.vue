@@ -9,7 +9,7 @@ import {
     fetchCounterparties,
     fetchOrder,
     fetchOrderStatuses,
-    fetchOrderTechCard, postOrder, updateOrder, updateOrderStatus
+    fetchOrderTechCard, postOrder, updateOrder, updateOrderStatus, fetchDocument
 } from "../services/orderServices.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 
@@ -28,9 +28,10 @@ const tab = ref();
 const orderStatuses = ref([]);
 const selectedProducts = ref([]);
 const deleteProducts = ref([]);
-const dialog = ref(false)
-const dialogMessage = ref("")
-const orderStatus = ref(null)
+const dialog = ref(false);
+const dialogMessage = ref("");
+const orderStatus = ref(null);
+const documents = ref([]);
 
 const formTitle = computed(() => route.params.id ? "Редактировать заказ" : "Добавить заказ")
 
@@ -130,6 +131,15 @@ onMounted(async () => {
         setAlert(alertMessage, alertType, responseOrderTechCard.message, "error");
         if (responseOrderTechCard.success) {
             selectedProducts.value = responseOrderTechCard.data;
+        }
+
+        const responseDocumentOrder = await handlerResponse(fetchDocument(route.params.id))
+        setAlert(alertMessage, alertType, responseDocumentOrder.message, "error");
+        if (responseDocumentOrder.success) {
+            documents.value = responseDocumentOrder.data.map(document => ({
+                ...document,
+                created_at: formatDate(document.created_at)
+            }))
         }
     }
 })
@@ -241,7 +251,8 @@ onMounted(async () => {
 
                                         <v-tabs-window-item
                                             value="documents">
-                                            <w-child-documents-table>
+                                            <w-child-documents-table
+                                                :items="documents">
 
                                             </w-child-documents-table>
                                         </v-tabs-window-item>

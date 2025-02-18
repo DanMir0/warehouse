@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Common\OrderStatuses;
+use App\Models\Document;
 use App\Models\Order;
 use App\Models\OrderTechCard;
 use Illuminate\Http\Request;
@@ -175,7 +176,7 @@ class OrderController extends Controller
             $order = Order::findOrFail($id);
 
             $order->update([
-               'order_status_id' => $validated['order_status_id'],
+                'order_status_id' => $validated['order_status_id'],
             ]);
 
             // Обработка смены статуса и создание документа
@@ -191,7 +192,6 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Ошибка при обновлении статуса.', 'error' => $e->getMessage()], 500);
         }
-
     }
 
     public function destroy($id)
@@ -203,5 +203,16 @@ class OrderController extends Controller
 
             $order->delete();
         }
+    }
+
+    public function getDocument($id)
+    {
+        $document = Document::select('d.*', 'dt.name as document_type_name')
+            ->from('documents as d')
+            ->join('document_types as dt', 'dt.id', '=', 'd.document_type_id')
+            ->where('d.order_id', $id)
+            ->get();
+
+        return response()->json($document);
     }
 }
