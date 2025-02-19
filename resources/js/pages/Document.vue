@@ -55,7 +55,6 @@ function updatedProduct(product, defaultProduct) {
 }
 
 async function save() {
-
     const documentData = {
         document_type_id: entity.value.document_type_id,
         counterparty_id: entity.value.counterparty_id,
@@ -67,7 +66,7 @@ async function save() {
         })),
         deletedProducts: [...deleteProducts.value]
     }
-    console.log(documentData)
+
     if (route.params.id) {
         const {success, message} = await handlerResponse(updateDocument(route.params.id, documentData))
         setAlert(alertMessage, alertType, success ? "Документ обновлен." : message, success ? "success" : "error");
@@ -82,10 +81,8 @@ async function save() {
 
 onMounted(async () => {
     if (route.params.id) {
-        console.log('eblan', route.params.id)
         const responseDocument = await handlerResponse(fetchDocument(route.params.id));
         setAlert(alertMessage, alertType, responseDocument.message, "error")
-        console.log('data', responseDocument)
         if (responseDocument.success) {
             entity.value = responseDocument.data;
         }
@@ -183,6 +180,7 @@ onMounted(async () => {
                     Назад
                 </v-btn>
                 <v-btn
+                    :disabled="entity.order_id"
                     variant="tonal"
                     color="primary"
                     @click="save">
