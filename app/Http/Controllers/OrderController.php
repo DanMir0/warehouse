@@ -184,6 +184,9 @@ class OrderController extends Controller
                 (new DocumentController)->generateProductionDocument($order);
             } elseif ($validated['order_status_id'] == OrderStatuses::STATUS_FINISHED) {
                 (new DocumentController)->generateFinishedDocument($order);
+            } elseif ($validated['order_status_id'] == OrderStatuses::STATUS_ISSUED) {
+                (new DocumentController)->generateIssuedDocument($order);
+
             }
 
             DB::commit();

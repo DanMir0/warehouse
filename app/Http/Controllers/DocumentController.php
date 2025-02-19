@@ -159,6 +159,42 @@ class DocumentController extends Controller
         }
     }
 
+    public function generateIssuedDocument(Order $order)
+    {
+        try {
+            DB::beginTransaction();
+
+            $document = Document::create([
+                'document_type_id' => DocumentTypes::OUTCOME,
+                'counterparty_id' => $order->counterparty_id,
+                'order_id' => $order->id,
+            ]);
+
+            $order_tech_cards = OrderTechCard::where('order_id', $order->id)->get();
+
+             foreach ($order_tech_cards as $order_tech_card) {
+                 $tech_card = TechCard::where('id', $order_tech_card->tech_card_id)->first();
+
+                 if ($tech_card) {
+                     $product = Products::where('id', $tech_card->product_id)->first();
+
+                     if ($product) {
+                         DocumentProduct::create([
+                             'document_id' => $document->id,
+                             'product_id' => $product->id,
+                             'quantity' => $order_tech_card->quantity,
+                         ]);
+                     }
+                 }
+             }
+
+            DB::commit();
+            return response()->json(['message' => 'Документ успешно сохранена!'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 500);
+        }
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
