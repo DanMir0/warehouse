@@ -182,7 +182,8 @@ class OrderController extends Controller
             // Обработка смены статуса и создание документа
             if ($validated['order_status_id'] == OrderStatuses::STATUS_IN_PROGRESS) {
                 (new DocumentController)->generateProductionDocument($order);
-
+            } elseif ($validated['order_status_id'] == OrderStatuses::STATUS_FINISHED) {
+                (new DocumentController)->generateFinishedDocument($order);
             }
 
             DB::commit();
@@ -215,4 +216,5 @@ class OrderController extends Controller
 
         return response()->json($document);
     }
+
 }

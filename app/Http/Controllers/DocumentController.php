@@ -8,6 +8,8 @@ use App\Models\Document;
 use App\Models\DocumentProduct;
 use App\Models\Order;
 use App\Models\OrderTechCard;
+use App\Models\Products;
+use App\Models\TechCard;
 use App\Models\TechCardProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -103,6 +105,52 @@ class DocumentController extends Controller
                 }
             }
 
+            DB::commit();
+            return response()->json(['message' => 'Документ успешно сохранена!'], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function generateFinishedDocument(Order $order)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Находим контрагент Производственный цех
+            $counterparty = Counterparties::where('name', 'Производственный цех')->first();
+            if (!$counterparty) {
+                throw new \Exception("Контрагент 'Производственный цех' не найден");
+            }
+
+            $document = Document::create([
+                'document_type_id' => DocumentTypes::INCOME,
+                'counterparty_id' => $counterparty->id,
+                'order_id' => $order->id,
+            ]);
+
+            if (!$document) {
+                throw new \Exception("Ошибка при создании документа");
+            }
+
+            $order_tech_cards = OrderTechCard::where('order_id', $order->id)->get();
+
+            foreach ($order_tech_cards as $order_tech_card) {
+                $tech_card = TechCard::where('id', $order_tech_card->tech_card_id)->first();
+
+                if ($tech_card) {
+                    $product = Products::where('id', $tech_card->product_id)->first();
+
+                    if ($product) {
+                        DocumentProduct::create([
+                            'document_id' => $document->id,
+                            'product_id' => $product->id,
+                            'quantity' => $order_tech_card->quantity,
+                        ]);
+                    }
+                }
+            }
             DB::commit();
             return response()->json(['message' => 'Документ успешно сохранена!'], 201);
         } catch (\Exception $e) {
