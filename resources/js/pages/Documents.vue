@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
 import useFormHandler from "../composoble/useFormHandler.js";
-import {fetchDocuments} from "../services/documenServices.js";
+import {fetchDocuments, deleteDocument} from "../services/documenServices.js";
 import {setAlert, formatDate} from "../helpers/helpers.js";
 
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
@@ -31,6 +31,16 @@ function addItem() {
 
 function editItem(item) {
     router.push(`/documents/${item.id}/edit`);
+}
+
+async function deleteItemConfirm(id) {
+    const {success, message} = await handlerResponse(deleteDocument(id));
+    setAlert(alertMessage, alertType, success ? "Документ удален." : message, success ? "success" : "error");
+    dialogDelete.value = false;
+    if (success) {
+        documents.value = documents.value.filter(techCard => techCard.id !== id);
+    }
+
 }
 
 onMounted(async () => {

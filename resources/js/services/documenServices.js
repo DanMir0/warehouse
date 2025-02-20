@@ -7,3 +7,4 @@ export const fetchCounterparties = () => axios.get("/api/counterparties");
 export const fetchDocumentProducts = (id) => axios.get(`/api/documents_products/${id}`);
 export const updateDocument = (id, data) => axios.put(`/documents/${id}`, data);
 export const addDocument = (data) => axios.post("/documents", data);
+export const deleteDocument = (id) => axios.delete(`/documents/${id}`);

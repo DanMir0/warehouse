@@ -308,5 +308,15 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Ошибка при обновлении.', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $document = Document::findOrFail($id);
+            $document->delete();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ошибка при удалении'], 500);
+        }
+    }
 }
 
