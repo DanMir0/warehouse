@@ -54,7 +54,7 @@ function back() {
         v-show="alertMessage"
         class="alert"
         :title="alertMessage"
-        :type="alertType"
+        :type="alertType || 'info'"
         closable
         max-width="500"
         position="fixed">

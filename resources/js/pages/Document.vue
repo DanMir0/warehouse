@@ -46,12 +46,10 @@ function deleteProduct(product) {
 }
 
 function updatedProduct(product, defaultProduct) {
-    console.log(product)
     const index = selectedProducts.value.findIndex(p => p.product_id === defaultProduct.product_id)
     if (index !== -1) {
         selectedProducts.value[index] = {old_product_id: defaultProduct.product_id, ...product.product}
     }
-    console.log(selectedProducts.value)
 }
 
 async function save() {
@@ -114,7 +112,7 @@ onMounted(async () => {
         v-show="alertMessage"
         class="alert"
         :title="alertMessage"
-        :type="alertType"
+        :type="alertType || 'info'"
         closable
         max-width="500"
         position="fixed">
