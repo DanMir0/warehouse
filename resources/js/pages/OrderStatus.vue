@@ -7,6 +7,10 @@ import {requireRule} from "../helpers/validationRules.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import {fetchOrderStatus, postOrderStatus, updateOrderStatus} from "../services/orderStatusService.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, handlerResponse, errors} = useFormHandler()
 
 const route = useRoute();
@@ -14,8 +18,6 @@ const route = useRoute();
 const entity = ref({
     name: null,
 });
-
-const rules = [requireRule];
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать статус заказа" : "Добавить статус заказа";
@@ -79,7 +81,7 @@ function back() {
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.name">
                             </v-text-field>
                         </v-col>

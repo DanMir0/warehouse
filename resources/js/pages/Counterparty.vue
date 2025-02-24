@@ -8,6 +8,10 @@ import {formatDate, formatPhoneForDisplay, formatPhoneForServer} from "../helper
 import useFormHandler from "../composoble/useFormHandler.js";
 import {fetchCounterparty, postCounterparty, updateCounterparty} from "../services/counterpartyService.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const route = useRoute();
@@ -21,8 +25,6 @@ const entity = ref({
     created_at: null,
     updated_at: null,
 });
-
-const rules = [requireRule];
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать контрагента" : "Добавить контрагента";
@@ -95,7 +97,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.name || []">
                             </v-text-field>
                         </v-col>
@@ -104,7 +106,7 @@ onMounted(async () => {
                                 type="tel"
                                 v-model="entity.contact_info"
                                 label="Контактная информация"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.contact_info || []"
                                 @input="onPhoneInput">
                             </v-text-field>
@@ -113,7 +115,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.address"
                                 label="Адресс"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.address || []">
                             </v-text-field>
                         </v-col>
@@ -121,7 +123,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.inn"
                                 label="ИНН"
-                                :rules="[rules, innRule]"
+                                :rules="[requireRule, innRule]"
                                 :error-messages="errors.inn || []"
                                 @input="entity.inn = entity.inn.replace(/\D/g, '').slice(0, 10)">
                             </v-text-field>
@@ -130,7 +132,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.contact_persons"
                                 label="Контактное лицо"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.contact_persons || []">
                             </v-text-field>
                         </v-col>
@@ -140,7 +142,7 @@ onMounted(async () => {
                                 type="date"
                                 :model-value="formatDate(entity.created_at)"
                                 label="Дата создания"
-                                :rules="rules">
+                                :rules="[requireRule]">
                             </v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
@@ -148,8 +150,7 @@ onMounted(async () => {
                                 disabled
                                 type="date"
                                 :model-value="formatDate(entity.updated_at)"
-                                label="Обновленная дата"
-                                :rules="rules">
+                                label="Обновленная дата">
                             </v-text-field>
                         </v-col>
                     </v-row>

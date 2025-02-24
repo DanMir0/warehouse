@@ -7,6 +7,10 @@ import {requireRule} from "../helpers/validationRules.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import {fetchMeasuringUnit, updateMeasuringUnit, postMeasuringUnit} from "../services/measuringUnitService.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, handlerResponse, errors} = useFormHandler()
 
 const route = useRoute();
@@ -15,8 +19,6 @@ const entity = ref({
     id: null,
     name: null,
 });
-
-const rules = [requireRule]
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать единицу измерения" : "Добавить единицу измерения";
@@ -75,7 +77,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.name">
                             </v-text-field>
                         </v-col>

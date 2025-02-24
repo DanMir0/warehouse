@@ -8,9 +8,12 @@ import {requireRule} from "../helpers/validationRules.js";
 import {fetchProducts, fetchTechCard, fetchTechCardProduct, postTechCard, updateTechCard} from "../services/tehcCardServices.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 const route = useRoute();
-
 const products = ref();
 const selectedProducts = ref([]);
 const techCard = ref();
@@ -25,8 +28,6 @@ const entity = ref({
 });
 
 const formTitle = computed(() => route.params.id ? "Редактировать тех карту" : "Добавить тех карту");
-
-const rules = [requireRule];
 
 function back() {
     router.back();
@@ -148,7 +149,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.name">
                             </v-text-field>
                         </v-col>
@@ -156,7 +157,7 @@ onMounted(async () => {
                             <v-select
                                 v-model="entity.product_id"
                                 :items="products"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.product_id"
                                 label="Товар"
                                 item-title="name"

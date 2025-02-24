@@ -12,6 +12,11 @@ import {
     fetchOrderTechCard, postOrder, updateOrder, updateOrderStatus, fetchDocument
 } from "../services/orderServices.js";
 import useFormHandler from "../composoble/useFormHandler.js";
+import {requireRule} from "../helpers/validationRules.js";
+
+defineProps({
+    id: [String, Number]
+})
 
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
@@ -178,7 +183,7 @@ onMounted(async () => {
                                 :items="orderStatuses"
                                 item-title="name"
                                 item-value="id"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.order_status_id">
                             </v-select>
                         </v-col>
@@ -186,7 +191,7 @@ onMounted(async () => {
                             <v-select
                                 v-model="entity.counterparty_id"
                                 :items="counterparties"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.counterparty_id"
                                 label="Контрагент"
                                 item-title="name"

@@ -7,6 +7,10 @@ import {requireRule} from "../helpers/validationRules.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import {fetchMeasuringUnits, fetchProduct, postProduct, updateProduct} from "../services/productServices.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const route = useRoute();

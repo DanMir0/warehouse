@@ -23,8 +23,7 @@ const routes = [
     },
     {
         path: "/products",
-
-        component: Products
+        component: Products,
     },
     {
         path: "/products/create",

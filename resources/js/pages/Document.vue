@@ -12,7 +12,11 @@ import {
 } from "../services/documenServices.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import router from "../router/index.js";
-import WChildProductsTable from "@/components/WChildProductsTable.vue";
+import {requireRule} from "../helpers/validationRules.js";
+
+defineProps({
+    id: [String, Number]
+})
 
 const route = useRoute();
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
@@ -140,7 +144,7 @@ onMounted(async () => {
                                 item-title="name"
                                 item-value="id"
                                 :items="documentTypes"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.document_type_id">
                             </v-select>
                         </v-col>
@@ -151,7 +155,7 @@ onMounted(async () => {
                                 item-title="name"
                                 item-value="id"
                                 :items="counterparties"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.counterparty_id">
                             </v-select>
                         </v-col>
@@ -178,7 +182,7 @@ onMounted(async () => {
                     Назад
                 </v-btn>
                 <v-btn
-                    :disabled="entity.order_id"
+                    :disabled="!!entity.order_id"
                     variant="tonal"
                     color="primary"
                     @click="save">
@@ -197,5 +201,3 @@ onMounted(async () => {
     border-radius: 50% 20% / 10% 40%;
 }
 </style>
-<script setup>
-</script>

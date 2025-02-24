@@ -7,6 +7,10 @@ import {requireRule} from "../helpers/validationRules.js";
 import useFormHandler from "../composoble/useFormHandler.js";
 import {fetchDocumentType, postDocumentType, putDocumentType} from "../services/documentTypeService.js";
 
+defineProps({
+    id: [String, Number]
+})
+
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const route = useRoute();
@@ -20,8 +24,6 @@ const inOut = ref([
     {id: 1, name: "Приход", value: "IN"},
     {id: 2, name: "Расход", value: "OUT"},
 ])
-
-const rules = [requireRule]
 
 const formTitle = computed(() => {
     return route.params.id ? "Редактировать тип документа" : "Добавить тип документа";
@@ -81,7 +83,7 @@ onMounted(async () => {
                             <v-text-field
                                 v-model="entity.name"
                                 label="Наименование"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 :error-messages="errors.name">
                             </v-text-field>
                         </v-col>
@@ -89,7 +91,7 @@ onMounted(async () => {
                             <v-select
                                 v-model="entity.in_out"
                                 :items="inOut"
-                                :rules="rules"
+                                :rules="[requireRule]"
                                 label="Выберите тип документа"
                                 item-title="name"
                                 item-value="value"
