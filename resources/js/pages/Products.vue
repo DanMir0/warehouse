@@ -27,7 +27,7 @@ const editedItem = ref({
 const dialogDelete = ref(false)
 
 async function deleteItemConfirm(id) {
-    const {success, message} = await handlerResponse(deleteProduct());
+    const {success, message} = await handlerResponse(deleteProduct(id));
     setAlert(alertMessage, alertType, success ? "Товар удален." : message, success ? "success" : "error");
     if (success) {
         dialogDelete.value = false;

@@ -48,16 +48,39 @@ function openDialog(status, message) {
 
 async function confirmAction() {
     if (!orderStatus.value) return;
-    const {
-        success,
-        message,
-        data
-    } = await handlerResponse(updateOrderStatus(route.params.id, {order_status_id: orderStatus.value}))
-    setAlert(alertMessage, alertType, success ? "Статус изменен!" : message, success ? "success" : "error")
-    if (success) {
-        entity.value.order_status_id = data.order.order_status_id;
+
+    const response = await handlerResponse(updateOrderStatus(route.params.id, { order_status_id: orderStatus.value }));
+
+    if (!response.success) {
+
+        if (response.details) {
+            let errorText = response.message + "\n";
+
+            // Проверяем, начинается ли строка с "Недостаточно материалов:"
+            if (typeof response.details === "string" && response.details.startsWith("Недостаточно материалов:")) {
+                try {
+                    // Извлекаем JSON из строки
+                    const jsonStart = response.details.indexOf("["); // Ищем, где начинается JSON
+                    const materials = JSON.parse(response.details.slice(jsonStart)); // Парсим JSON
+
+                    materials.forEach(material => {
+                        errorText += `Товар: ${material.product_name}, нехватка: ${material.quantity}\n`;
+                    });
+                } catch (e) {
+                    errorText += "\nНе удалось обработать детали ошибки.";
+                }
+            }
+
+            alertMessage.value = errorText; // Выводим сообщение в UI
+        } else {
+            alertMessage.value = response.message; // Общая ошибка
+        }
+        return;
+    } else {
+        entity.value.order_status_id = response.data.order.order_status_id;
     }
     dialog.value = false;
+
 }
 
 function addProduct(product) {
@@ -258,7 +281,6 @@ onMounted(async () => {
                                             value="documents">
                                             <w-child-documents-table
                                                 :items="documents">
-
                                             </w-child-documents-table>
                                         </v-tabs-window-item>
                                     </v-tabs-window>
@@ -327,11 +349,11 @@ onMounted(async () => {
 
 <style scoped>
 .alert {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    border-radius: 8px
+    border-radius: 8px;
 }
 
 .custom-tabs .v-tab {

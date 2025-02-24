@@ -60,13 +60,41 @@ class DocumentController extends Controller
         try {
             DB::beginTransaction();
 
-            // Находим контрагент Производственный цех
+            // Находим контрагента "Производственный цех"
             $counterparty = Counterparties::where('name', 'Производственный цех')->first();
             if (!$counterparty) {
                 throw new \Exception("Контрагент 'Производственный цех' не найден");
             }
 
-            // Создаем документ
+            // Проверяем наличие всех необходимых материалов перед созданием документа
+            $order_tech_cards = OrderTechCard::where('order_id', $order->id)->get();
+            $missingMaterials = [];  // Массив для хранения информации о нехватке материалов
+
+
+            foreach ($order_tech_cards as $order_tech_card) {
+                $tech_card_products = TechCardProduct::where('tech_card_id', $order_tech_card->tech_card_id)->get();
+
+                foreach ($tech_card_products as $tech_card_product) {
+                    $total_quantity = $order_tech_card->quantity * $tech_card_product->quantity;
+
+                    // Проверяем остатки
+                    $product = Products::find($tech_card_product->product_id);
+                    if (!$product || $product->residue < $total_quantity) {
+                        $missingMaterials[] = [
+                            'product_id' => $tech_card_product->product_id,
+                            'quantity' => $total_quantity - $product->residue, // недостающий объем
+                            'product_name' => $product ? $product->name : 'Неизвестный товар'
+                        ];
+                    }
+                }
+            }
+
+            // Если есть недостающие материалы, выбрасываем ошибку
+            if (!empty($missingMaterials)) {
+                throw new \Exception('Недостаточно материалов: ' . json_encode($missingMaterials));
+            }
+
+            // Если все материалы есть → создаем документ
             $document = Document::create([
                 'document_type_id' => DocumentTypes::OUTCOME,
                 'counterparty_id' => $counterparty->id,
@@ -76,24 +104,24 @@ class DocumentController extends Controller
                 throw new \Exception("Ошибка при создании документа");
             }
 
-            // Находим товары из заказа
-            $order_tech_cards = OrderTechCard::where('order_id', $order->id)->get();
-
-            // Находим материалы из чего изготавлвается товар
+            // Теперь списываем материалы
             foreach ($order_tech_cards as $order_tech_card) {
                 $tech_card_products = TechCardProduct::where('tech_card_id', $order_tech_card->tech_card_id)->get();
 
                 foreach ($tech_card_products as $tech_card_product) {
                     $total_quantity = $order_tech_card->quantity * $tech_card_product->quantity;
 
-                    // Если материал уже есть, то прибавляем к этому же товару количество иначе создаем новое поле
-                    $existinProduct = DocumentProduct::where('document_id', $document->id)
+                    // Получаем товар
+                    $product = Products::find($tech_card_product->product_id);
+
+                    // Если материал уже есть в документе, обновляем количество, иначе создаем запись
+                    $existingProduct = DocumentProduct::where('document_id', $document->id)
                         ->where('product_id', $tech_card_product->product_id)
                         ->first();
 
-                    if ($existinProduct) {
-                        $existinProduct->update([
-                            'quantity' => $existinProduct->quantity + $total_quantity,
+                    if ($existingProduct) {
+                        $existingProduct->update([
+                            'quantity' => $existingProduct->quantity + $total_quantity,
                         ]);
                     } else {
                         DocumentProduct::create([
@@ -102,14 +130,20 @@ class DocumentController extends Controller
                             'quantity' => $total_quantity,
                         ]);
                     }
+
+                    // Уменьшаем остаток в products
+                    $product->decrement('residue', $total_quantity);
                 }
             }
 
             DB::commit();
-            return response()->json(['message' => 'Документ успешно сохранена!'], 201);
+            return response()->json(['message' => 'Документ успешно создан!'], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Ошибка при создании документа.',
+                'error' => $e->getMessage()
+            ], 400);
         }
     }
 
@@ -222,6 +256,15 @@ class DocumentController extends Controller
                     'product_id' => $product['product_id'],
                     'quantity' => $product['quantity']
                 ]);
+
+                if ($validated['document_type_id'] == DocumentTypes::INCOME) {
+                    $counterparty = Counterparties ::find($validated['counterparty_id']);
+
+                    if ($counterparty && $counterparty->name == 'Производственный цех') {
+                        Products::where('id', $product['product_id'])
+                            ->increment('residue', $product['quantity']);
+                    }
+                }
             }
 
             DB::commit();
