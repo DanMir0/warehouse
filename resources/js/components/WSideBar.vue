@@ -1,5 +1,8 @@
 <script setup>
 import {ref} from "vue";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
 
 const items = ref([
     {title: "Товары", icon: "mdi-shopping", to: "/products"},
@@ -34,9 +37,10 @@ const handbook = ref([
         to: "/document_types",
     },
 ]);
-defineProps({
-    productsUrl: String,
-})
+
+const isActive = (path) => {
+    return route.path.startsWith(path);
+}
 </script>
 
 <template>
@@ -50,6 +54,7 @@ defineProps({
                 :to="item.to"
                 :prepend-icon="item.icon"
                 link
+                :active="isActive(item.to)"
                 active-class="primary white--text"
             >
                 {{ item.title }}
@@ -70,6 +75,7 @@ defineProps({
                     :to="item.to"
                     :prepend-icon="item.icon"
                     link
+                    :active="isActive(item.to)"
                     active-class="primary white--text"
                 >
                     {{ item.title }}
