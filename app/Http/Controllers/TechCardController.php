@@ -60,7 +60,7 @@ class TechCardController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Тех карта успешно сохранена!'], 201);
+            return response()->json($tech_card->id);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 500);
         }

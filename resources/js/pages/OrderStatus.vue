@@ -31,8 +31,10 @@ async function save() {
         const {success, message } = await handlerResponse(updateOrderStatus(route.params.id, entity.value))
         setAlert(alertMessage, alertType, success ? "Статус заказа обновлен." : message, success ? "success" : "error");
     } else {
-        const {success, message } = await handlerResponse(postOrderStatus(entity.value))
+        const {success, message, data} = await handlerResponse(postOrderStatus(entity.value))
         setAlert(alertMessage, alertType, success ? "Статус заказа добавлен." : message, success ? "success" : "error");
+
+        await router.push(`/order_statuses/${data.id}/edit`)
     }
 }
 

@@ -273,7 +273,7 @@ class DocumentController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'Документ успешно сохранен!'], 201);
+            return response()->json($document->id);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 201);
         }

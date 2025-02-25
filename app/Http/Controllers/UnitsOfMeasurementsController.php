@@ -54,9 +54,11 @@ class UnitsOfMeasurementsController extends Controller
             'name' => 'required'
         ]);
 
-        UnitsOfMeasurements::create([
+        $units = UnitsOfMeasurements::create([
             'name' => $validated['name'],
         ]);
+
+        return response()->json($units->id);
     }
     public function getUnit($id)
     {

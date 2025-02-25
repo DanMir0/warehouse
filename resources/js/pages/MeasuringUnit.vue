@@ -33,9 +33,12 @@ async function save() {
         const {success, message} = await handlerResponse(updateMeasuringUnit(route.params.id, entity.value));
         setAlert(alertMessage, alertType, success ? "Единица измерения обновлена." : message, success ? "success" : "error");
     } else {
-        const {success, message} = await handlerResponse(postMeasuringUnit(entity.value));
+        const {success, message, data} = await handlerResponse(postMeasuringUnit(entity.value));
         setAlert(alertMessage, alertType, success ? "Единица измерения добавлена." : message, success ? "success" : "error");
+
+        await router.push(`/measuring_units/${data}/edit`)
     }
+
 }
 
 onMounted(async () => {

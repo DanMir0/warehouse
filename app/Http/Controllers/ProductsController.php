@@ -40,6 +40,7 @@ class ProductsController extends Controller
         ]);
 
         $product->save();
+        return response()->json($product);
     }
 
     public function destroy($id)

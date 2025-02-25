@@ -125,8 +125,10 @@ async function save() {
             deleteProducts.value = [];
         }
     } else {
-        const {success, message} = await handlerResponse(postOrder(orderData));
+        const {success, message, data} = await handlerResponse(postOrder(orderData));
         setAlert(alertMessage, alertType, success ? "Заказ добавлен." : message, success ? "success" : "error");
+
+        await router.push(`/orders/${data}/edit`)
     }
 }
 

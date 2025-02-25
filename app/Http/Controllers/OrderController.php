@@ -56,7 +56,7 @@ class OrderController extends Controller
             }
 
             DB::commit();
-            return response()->json(['message' => 'Заказ успешно сохранена!'], 201);
+            return response()->json($order->id);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Ошибка при сохранении.', 'error' => $e->getMessage()], 201);
         }

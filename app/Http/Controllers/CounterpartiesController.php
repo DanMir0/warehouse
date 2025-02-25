@@ -41,6 +41,7 @@ class CounterpartiesController extends Controller
         ]);
 
         $counterparty->save();
+        return response()->json($counterparty);
     }
 
     public function getCounterparties()

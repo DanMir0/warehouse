@@ -34,8 +34,10 @@ async function save() {
         const {success, message} = await handlerResponse(updateProduct(route.params.id, entity.value));
         setAlert(alertMessage, alertType, success ? "Товар добавлен." : message, success ? "success" : "error");
     } else {
-        const {success, message} = await handlerResponse(postProduct(entity.value));
+        const {success, message, data} = await handlerResponse(postProduct(entity.value));
         setAlert(alertMessage, alertType, success ? "Товар добавлен." : message, success ? "success" : "error");
+
+        await router.push(`/products/${data.id}/edit`)
     }
 }
 

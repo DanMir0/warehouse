@@ -76,8 +76,10 @@ async function save() {
             deleteProducts.value = [];
         }
     } else {
-        const {success, message} = await handlerResponse(addDocument(documentData))
+        const {success, message, data} = await handlerResponse(addDocument(documentData))
         setAlert(alertMessage, alertType, success ? "Документ создан." : message, success ? "success" : "error");
+
+        await router.push(`/documents/${data}/edit`)
     }
 }
 

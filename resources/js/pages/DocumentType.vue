@@ -38,8 +38,10 @@ async function save() {
         const {success, message} = await handlerResponse(putDocumentType(route.params.id, entity.value));
         setAlert(alertMessage, alertType, success ? "Тип документа обновлен." : message, success ? "success" : "error");
     } else {
-        const {success, message} = await handlerResponse(postDocumentType(entity.value));
+        const {success, message, data} = await handlerResponse(postDocumentType(entity.value));
         setAlert(alertMessage, alertType, success ? "Тип документа добавлен." : message, success ? "success" : "error");
+
+        await router.push(`/document_types/${data.id}/edit`)
     }
 }
 

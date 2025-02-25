@@ -29,6 +29,7 @@ class OrderStatusController extends Controller
         ]);
 
         $order_status->save();
+        return response()->json($order_status);
     }
 
     public function getOrderStatuses()

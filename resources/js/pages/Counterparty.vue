@@ -47,8 +47,10 @@ async function save() {
         const {success, message} = await handlerResponse(updateCounterparty(route.params.id, entity.value));
         setAlert(alertMessage, alertType, success ? "Контрагент изменен." : message, success ? "success" : "error");
     } else {
-        const {success, message} = await handlerResponse(postCounterparty(entity.value));
+        const {success, message, data} = await handlerResponse(postCounterparty(entity.value));
         setAlert(alertMessage, alertType, success ? "Контрагент добавлен." : message, success ? "success" : "error");
+
+        await router.push(`/counterparties/${data.id}/edit`)
     }
 }
 

@@ -73,8 +73,9 @@ async function save() {
             deletedProducts.value = [];
         }
     } else {
-        const {success, message} = await handlerResponse(postTechCard(techCardData))
+        const {success, message, data} = await handlerResponse(postTechCard(techCardData))
         setAlert(alertMessage, alertType, success ? "Тех карта добавлена." : message, success ? "success" : "error");
+        await router.push(`/tech_cards/${data}/edit`)
     }
 }
 

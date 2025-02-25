@@ -25,12 +25,12 @@ class DocumentTypeController extends Controller
             'in_out' => 'required',
         ]);
 
-        $document_type = new DocumentType([
+        $document_type = DocumentType::create([
             'name' => $validated['name'],
             'in_out' => $validated['in_out'],
         ]);
 
-        $document_type->save();
+        return response()->json($document_type);
     }
 
     public function getDocumentTypes()
