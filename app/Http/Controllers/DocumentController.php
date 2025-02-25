@@ -182,6 +182,9 @@ class DocumentController extends Controller
                             'product_id' => $product->id,
                             'quantity' => $order_tech_card->quantity,
                         ]);
+
+                        // увеличиваем количество товара в таблице products
+                        $product->increment('residue', $order_tech_card->quantity);
                     }
                 }
             }
@@ -218,6 +221,8 @@ class DocumentController extends Controller
                              'product_id' => $product->id,
                              'quantity' => $order_tech_card->quantity,
                          ]);
+
+                        $product->decrement('residue', $order_tech_card->quantity);
                      }
                  }
              }
