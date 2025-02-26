@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderTechCardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentProductController;
+use App\Http\Controllers\SettingController;
 
 Route::redirect('/', '/products')->name('products');
 Route::get('/api/products', [ProductsController::class, 'getProducts'])->name('getProducts');
@@ -54,7 +55,10 @@ Route::get('/api/documents/{id}', [DocumentController::class, 'getDocument'])->n
 Route::resource('/documents', DocumentController::class);
 
 Route::get('/api/documents_products/{id}', [DocumentProductController::class, 'getProducts'])->name('getProducts');
+Route::get('/documents/{id}/print', [DocumentController::class, 'print'])->name('documents.print');
 
+Route::resource('/settings', SettingController::class);
+Route::get('/api/settings', [SettingController::class, 'getSettings'])->name('getSettings');
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue
 })->where('any', '.*');

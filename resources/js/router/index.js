@@ -15,6 +15,7 @@ import Orders from "../pages/Orders.vue";
 import Order from "../pages/Order.vue";
 import Documents from "../pages/Documents.vue";
 import Document from "../pages/Document.vue";
+import Settings from "../pages/Settings.vue";
 
 const routes = [
     {
@@ -132,6 +133,10 @@ const routes = [
         path: "/documents/:id/edit",
         component: Document,
         props: true
+    },
+    {
+        path: "/settings",
+        component: Settings,
     },
 ]
 

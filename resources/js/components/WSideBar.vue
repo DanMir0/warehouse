@@ -18,6 +18,7 @@ const items = ref([
     },
     {title: "Заказы", icon: "mdi-chart-line", to: "/orders"},
     {title: "Тех карты", icon: "mdi-credit-card", to: "/tech_cards"},
+    {title: "Настройки", icon: "mdi-cog-outline", to: "/settings"},
 ]);
 
 const handbook = ref([
