@@ -11,6 +11,7 @@ use App\Models\OrderTechCard;
 use App\Models\Products;
 use App\Models\TechCard;
 use App\Models\TechCardProduct;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -365,6 +366,31 @@ class DocumentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Ошибка при удалении'], 500);
         }
+    }
+
+    public function print($id)
+    {
+        $document = Document::with([
+            'order.ordersTechCards.product.unitOfMeasurements', // Для документов с заказами
+            'counterparty',
+            'documentProducts.product',
+            'documentProducts.product.unitOfMeasurements' // Для документов без заказов
+        ])->findOrFail($id);
+
+        $view = match ($document->document_type_id) {
+            DocumentTypes::INCOME => 'prints.arrival',
+            DocumentTypes::OUTCOME => 'prints.shipment',
+        };
+
+        $organization = DB::table('settings as s')
+            ->join('counterparties as c', 's.value', '=', 'c.id')
+            ->where('s.key', 'CUSTOMER_ID')
+            ->select('c.*')
+            ->first();
+
+        $pdf = Pdf::loadView($view, compact('document', 'organization'));
+
+        return $pdf->stream('document_{$id}.pdf');
     }
 }
 

@@ -20,4 +20,8 @@ class OrderTechCard extends Model
     {
         return $this->belongsTo(TechCard::class, 'tech_card_id');
     }
+    public function product()
+    {
+        return $this->hasOneThrough(Products::class, TechCard::class, 'id', 'id', 'tech_card_id', 'product_id');
+    }
 }

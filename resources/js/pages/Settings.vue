@@ -21,7 +21,13 @@ async function save() {
     // Формируем payload
     const payload = {
         key: keys,
-        value: values,
+        value: values.map((value, index) => {
+            // Преобразуем в число только для CUSTOMER_ID и PRODUCTION_HALL
+            if (keys[index] === "CUSTOMER_ID" || keys[index] === "PRODUCTION_HALL") {
+                return parseInt(value, 10);
+            }
+            return value; // Если это не то значение, оставляем как есть
+        }),
     };
 
     console.log(payload); // Печатаем payload для отладки
@@ -36,22 +42,25 @@ async function save() {
     );
 }
 
-
 async function loadSettings() {
     const { success, message, data } = await handlerResponse(getSettings());
 
     if (success) {
         console.log("Загруженные настройки:", data);
-        // Преобразуем id -> name
+        // Преобразуем id -> name для CUSTOMER_ID и PRODUCTION_HALL
         data.forEach((setting) => {
             const counterparty = counterparties.value.find((c) => c.id == setting.value);
-            settings.value[setting.key] = counterparty ? counterparty.name : null;
+            if (setting.key === "CUSTOMER_ID" || setting.key === "PRODUCTION_HALL") {
+                // Преобразуем в числовое значение для CUSTOMER_ID и PRODUCTION_HALL
+                settings.value[setting.key] = counterparty ? counterparty.id : null;
+            } else {
+                settings.value[setting.key] = counterparty ? counterparty.name : null;
+            }
         });
     } else {
         setAlert(alertMessage, alertType, message, "error");
     }
 }
-
 onMounted(async () => {
     const responseCounterparties = await handlerResponse(fetchCounterparties());
     setAlert(alertMessage, alertType, responseCounterparties.message, "error");

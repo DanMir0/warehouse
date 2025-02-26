@@ -83,6 +83,10 @@ async function save() {
     }
 }
 
+function printDocument(id) {
+    window.open(`/documents/${id}/print`, '_blank')
+}
+
 onMounted(async () => {
     if (route.params.id) {
         const responseDocument = await handlerResponse(fetchDocument(route.params.id));
@@ -128,7 +132,9 @@ onMounted(async () => {
             <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
-
+            <v-btn @click="printDocument(entity.id)">
+                Печать
+            </v-btn>
             <v-card-text>
                 <v-container>
                     <v-row>

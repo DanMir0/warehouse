@@ -59,6 +59,7 @@ Route::get('/documents/{id}/print', [DocumentController::class, 'print'])->name(
 
 Route::resource('/settings', SettingController::class);
 Route::get('/api/settings', [SettingController::class, 'getSettings'])->name('getSettings');
+
 Route::get('/{any}', function () {
     return view('index'); // Замените 'app' на ваше основное представление Vue
 })->where('any', '.*');
