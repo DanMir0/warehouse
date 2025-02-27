@@ -129,12 +129,13 @@ onMounted(async () => {
     </v-alert>
     <v-card>
         <v-form>
-            <v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
                 <span class="text-h5">{{ formTitle }}</span>
+                <v-btn color="secondary" dark @click="printDocument(entity.id)">
+                    Печать
+                </v-btn>
             </v-card-title>
-            <v-btn @click="printDocument(entity.id)">
-                Печать
-            </v-btn>
+
             <v-card-text>
                 <v-container>
                     <v-row>

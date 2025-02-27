@@ -6,6 +6,7 @@ use App\Helpers\Common\OrderStatuses;
 use App\Models\Document;
 use App\Models\Order;
 use App\Models\OrderTechCard;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DocumentController;
@@ -219,6 +220,24 @@ class OrderController extends Controller
             ->get();
 
         return response()->json($document);
+    }
+
+    public function print($id)
+    {
+        $order = Order::with([
+            'ordersTechCards.product.unitOfMeasurements',
+            'counterparty'
+        ])->findOrFail($id);
+
+        $organization = DB::table('settings as s')
+            ->join('counterparties as c', 's.value', '=', 'c.id')
+            ->where('s.key', 'CUSTOMER_ID')
+            ->select('c.*')
+            ->first();
+
+        $pdf = Pdf::loadView('prints.order', compact('order', 'organization'))->setPaper('a4');
+
+        return $pdf->stream("order_{$id}.pdf");
     }
 
 }

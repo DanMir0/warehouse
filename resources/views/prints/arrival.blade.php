@@ -39,12 +39,14 @@
 <p class="font-italic font-weight-black">Покупатель: {{ $organization ? $organization->name : 'Не указан' }}</p>
 <p class="font-italic">Склад: Основной склад</p>
 <table>
-    <tr>
-        <th>Код</th>
-        <th>Наименование</th>
-        <th>Ед. изм.</th>
-        <th>Количество</th>
-    </tr>
+   <thead>
+   <tr>
+       <th>Код</th>
+       <th>Наименование</th>
+       <th>Ед. изм.</th>
+       <th>Количество</th>
+   </tr>
+   </thead>
     @if($document->order)
         @foreach($document->order->ordersTechCards  as $orderTechCards )
             <tr>

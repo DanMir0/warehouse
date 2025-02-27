@@ -55,7 +55,9 @@ Route::get('/api/documents/{id}', [DocumentController::class, 'getDocument'])->n
 Route::resource('/documents', DocumentController::class);
 
 Route::get('/api/documents_products/{id}', [DocumentProductController::class, 'getProducts'])->name('getProducts');
+
 Route::get('/documents/{id}/print', [DocumentController::class, 'print'])->name('documents.print');
+Route::get('/orders/{id}/print', [OrderController::class, 'print'])->name('orders.print');
 
 Route::resource('/settings', SettingController::class);
 Route::get('/api/settings', [SettingController::class, 'getSettings'])->name('getSettings');

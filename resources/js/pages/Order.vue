@@ -137,6 +137,10 @@ function deleteProduct(product) {
     selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id)
 }
 
+function printDocument(id) {
+    window.open(`/orders/${id}/print`, '_blank')
+}
+
 onMounted(async () => {
     const responseCounterparties = await handlerResponse(fetchCounterparties());
     setAlert(alertMessage, alertType, responseCounterparties.message, "error");
@@ -187,8 +191,11 @@ onMounted(async () => {
     </v-alert>
     <v-card>
         <v-form>
-            <v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
                 <span class="text-h5">{{ formTitle }}</span>
+                <v-btn color="secondary" dark @click="printDocument(route.params.id)">
+                    Печать
+                </v-btn>
             </v-card-title>
             <v-card-text>
                 <v-container>

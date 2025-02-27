@@ -18,4 +18,9 @@ class Order extends Model
     {
         return $this->belongsTo(OrderStatus::class, 'order_status_id');
     }
+
+    public function counterparty()
+    {
+        return $this->belongsTo(Counterparties::class, 'counterparty_id');
+    }
 }

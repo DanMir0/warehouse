@@ -388,7 +388,7 @@ class DocumentController extends Controller
             ->select('c.*')
             ->first();
 
-        $pdf = Pdf::loadView($view, compact('document', 'organization'));
+        $pdf = Pdf::loadView($view, compact('document', 'organization'))->setPaper('a4');
 
         return $pdf->stream('document_{$id}.pdf');
     }
