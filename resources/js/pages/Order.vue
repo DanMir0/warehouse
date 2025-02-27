@@ -78,6 +78,7 @@ async function confirmAction() {
         return;
     } else {
         entity.value.order_status_id = response.data.order.order_status_id;
+        await loadDocuments()
     }
     dialog.value = false;
 
@@ -141,6 +142,21 @@ function printDocument(id) {
     window.open(`/orders/${id}/print`, '_blank')
 }
 
+async function loadDocuments() {
+    const responseDocumentOrder = await handlerResponse(fetchDocument(route.params.id));
+
+    if (!responseDocumentOrder.success) {
+        setAlert(alertMessage, alertType, responseDocumentOrder.message, "error");
+        return;
+    }
+
+    // 👇 Обновляем реактивный массив через splice()
+    documents.value.splice(0, documents.value.length, ...responseDocumentOrder.data.map(document => ({
+        ...document,
+        created_at: formatDate(document.created_at)
+    })));
+}
+
 onMounted(async () => {
     const responseCounterparties = await handlerResponse(fetchCounterparties());
     setAlert(alertMessage, alertType, responseCounterparties.message, "error");
@@ -167,14 +183,7 @@ onMounted(async () => {
             selectedProducts.value = responseOrderTechCard.data;
         }
 
-        const responseDocumentOrder = await handlerResponse(fetchDocument(route.params.id))
-        setAlert(alertMessage, alertType, responseDocumentOrder.message, "error");
-        if (responseDocumentOrder.success) {
-            documents.value = responseDocumentOrder.data.map(document => ({
-                ...document,
-                created_at: formatDate(document.created_at)
-            }))
-        }
+        await loadDocuments()
     }
 })
 </script>
