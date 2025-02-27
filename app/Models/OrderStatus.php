@@ -12,4 +12,9 @@ class OrderStatus extends Model
     protected $fillable = ['name'];
 
     public $timestamps = false;
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'order_status_id');
+    }
 }

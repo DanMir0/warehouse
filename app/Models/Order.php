@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
@@ -11,5 +12,10 @@ class Order extends Model
     public function ordersTechCards()
     {
         return $this->hasMany(OrderTechCard::class, 'order_id');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(OrderStatus::class, 'order_status_id');
     }
 }

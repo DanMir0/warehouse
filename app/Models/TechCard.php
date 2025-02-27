@@ -14,4 +14,10 @@ class TechCard extends Model
     {
         return $this->hasMany(TechCardProduct::class, 'tech_card_id');
     }
+
+    public function products()
+    {
+        return $this->belongsToMany(Products::class, 'tech_cards_products', 'tech_card_id', 'product_id')
+            ->withPivot('quantity'); // если есть поле "количество"
+    }
 }
