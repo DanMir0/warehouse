@@ -8,7 +8,7 @@ import {fetchMeasuringUnits, deleteMeasuringUnit} from "../services/measuringUni
 const {alertMessage, alertType, handlerResponse} = useFormHandler();
 
 const measuringUnits = ref([]);
-
+const loading = ref(true);
 const dialogDelete = ref(false)
 
 const headers = ref([
@@ -40,11 +40,13 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {message, success, data} = await handlerResponse(fetchMeasuringUnits());
     setAlert(alertMessage, alertType, message, "error");
     if (success) {
         measuringUnits.value = data;
     }
+    loading.value = false;
 })
 </script>
 
@@ -60,6 +62,7 @@ onMounted(async () => {
     <w-table
         title="Единицы измерения"
         btn-icon="mdi-beaker-plus-outline"
+        :loading="loading"
         :headers="headers"
         :items="measuringUnits"
         :edited-item="editedItem"

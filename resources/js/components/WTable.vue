@@ -7,6 +7,7 @@ const props = defineProps({
     headers: Array,
     items: Array,
     editedItem: Object,
+    loading: Boolean,
 });
 
 const dialogDelete = defineModel()
@@ -34,7 +35,13 @@ function deleteItem(item) {
 </script>
 
 <template>
+    <v-skeleton-loader
+        v-if="loading"
+        type="table"
+        class="mt-4"
+    ></v-skeleton-loader>
     <v-data-table
+        v-else
         :headers="headers"
         :items="items"
         :items-per-page-text="'Строк на странице:'"

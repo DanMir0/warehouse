@@ -8,7 +8,7 @@ import {fetchProducts, deleteProduct} from "../services/productServices.js";
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let products = ref([]);
-
+const loading = ref(true);
 let headers = ref([
     {title: "Код", value: "id", sortable: true},
     {title: "Наименование", value: "name", sortable: true},
@@ -44,11 +44,13 @@ function editItem(item) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchProducts());
     setAlert(alertMessage, alertType, message, "error");
     if (success) {
         products.value = data
     }
+    loading.value = false;
 });
 </script>
 
@@ -62,6 +64,7 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
+        :loading="loading"
         :headers="headers"
         :items="products"
         :editedItem="editedItem"

@@ -8,7 +8,7 @@ import {deleteDocumentTypes, fetchDocumentTypes} from "../services/documentTypeS
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let documentTypes = ref([]);
-
+const loading = ref(true);
 const dialogDelete = ref(false);
 
 let headers = ref([
@@ -40,11 +40,13 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchDocumentTypes());
     setAlert(alertMessage, alertType, message, "error")
     if (success) {
         documentTypes.value = data;
     }
+    loading.value = false;
 })
 </script>
 
@@ -60,6 +62,7 @@ onMounted(async () => {
     <w-table
         title="Типы документов"
         btn-icon="mdi-file-document-plus-outline"
+        :loading="loading"
         :headers="headers"
         :items="documentTypes"
         :editedItem="editedItem"

@@ -8,7 +8,7 @@ import {setAlert, formatDate} from "../helpers/helpers.js";
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
 const dialogDelete = ref(false);
 const documents = ref([]);
-
+const loading = ref(true);
 let headers = ref([
     {title: "Код", value: "id", sortable: true},
     {title: "Тип документа", value: "document_type_name", sortable: true},
@@ -43,6 +43,7 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchDocuments());
     setAlert(alertMessage, alertType, message, "error")
     if (success) {
@@ -50,8 +51,8 @@ onMounted(async () => {
             ...document,
             created_at: formatDate(document.created_at),
         }));
-
     }
+    loading.value = false;
 })
 
 </script>
@@ -68,6 +69,7 @@ onMounted(async () => {
     <w-table
         title="Документы"
         btn-icon="mdi-file-document-plus-outline"
+        :loading="loading"
         :headers="headers"
         :items="documents"
         :editedItem="editedItem"

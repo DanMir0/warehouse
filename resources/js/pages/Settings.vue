@@ -12,7 +12,7 @@ const settings = ref({
     CUSTOMER_ID: null,
 })
 const counterparties = ref([])
-
+const loading = ref(true);
 async function save() {
     // Создаем массивы key и value из объекта settings
     const keys = Object.keys(settings.value); // Получаем все ключи
@@ -62,16 +62,23 @@ async function loadSettings() {
     }
 }
 onMounted(async () => {
+    loading.value = true
     const responseCounterparties = await handlerResponse(fetchCounterparties());
     setAlert(alertMessage, alertType, responseCounterparties.message, "error");
     if (responseCounterparties.success) counterparties.value = responseCounterparties.data;
 
     await loadSettings()
+    loading.value = false;
 })
 </script>
 
 <template>
-    <v-card>
+    <v-skeleton-loader
+        v-if="loading"
+        type="table"
+        class="mt-4"
+    ></v-skeleton-loader>
+    <v-card v-else>
         <v-form>
             <v-card-text>
                 <v-container>

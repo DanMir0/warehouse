@@ -8,7 +8,7 @@ import useFormHandler from "../composoble/useFormHandler.js";
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let orderStatuses = ref([]);
-
+const loading = ref(true);
 let headers = ref([
     {title: "Код", value: "id", sortable: true},
     {title: "Наименование", value: "name", sortable: true},
@@ -40,11 +40,13 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchOrderStatuses())
     setAlert(alertMessage, alertType, message, "error");
     if (success) {
         orderStatuses.value = data
     }
+    loading.value = false;
 })
 </script>
 
@@ -58,9 +60,9 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
-        v-if="orderStatuses.length"
         title="Статусы производства"
         btn-icon="mdi-plus"
+        :loading="loading"
         :headers="headers"
         :items="orderStatuses"
         :editedItem="editedItem"

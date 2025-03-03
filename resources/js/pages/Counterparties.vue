@@ -9,7 +9,7 @@ import {fetchCounterparties, deleteCounterparties} from "../services/counterpart
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
 
 let counterparties = ref([]);
-
+const loading = ref(true);
 const dialogDelete = ref(false);
 
 const headers = ref([
@@ -49,6 +49,7 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchCounterparties());
     setAlert(alertMessage, alertType, message, "error")
     if (success) {
@@ -59,6 +60,7 @@ onMounted(async () => {
             }
         })
     }
+    loading.value = false;
 })
 </script>
 
@@ -74,6 +76,7 @@ onMounted(async () => {
     <w-table
         title="Контрагенты"
         btn-icon="mdi-account-plus"
+        :loading="loading"
         :headers="headers"
         :items="counterparties"
         :editedItem="editedItem"

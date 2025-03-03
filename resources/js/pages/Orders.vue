@@ -6,7 +6,7 @@ import useFormHandler from "../composoble/useFormHandler.js";
 import {deleteOrder, fetchOrders} from "../services/orderServices.js";
 
 const {alertMessage, alertType, handlerResponse} = useFormHandler()
-
+const loading = ref(true);
 const dialogDelete = ref(false);
 const orders = ref([]);
 const headers = ref([
@@ -46,6 +46,7 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchOrders());
     setAlert(alertMessage, alertType, message, "error");
     if (success) {
@@ -55,6 +56,7 @@ onMounted(async () => {
             updated_at: formatDate(order.updated_at),
         }))
     }
+    loading.value = false;
 })
 </script>
 
@@ -70,6 +72,7 @@ onMounted(async () => {
     <w-table
         title="Заказы"
         btn-icon="mdi-plus"
+        :loading="loading"
         :headers="headers"
         :items="orders"
         :editedItem="editedItem"

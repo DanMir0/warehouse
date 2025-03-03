@@ -9,7 +9,7 @@ import {deleteTechCard, fetchTechCards} from "../services/tehcCardServices.js";
 const {alertMessage, alertType, errors, handlerResponse} = useFormHandler()
 
 const techCards = ref([]);
-
+const loading = ref(true);
 const dialogDelete = ref(false);
 
 let headers = ref([
@@ -50,6 +50,7 @@ async function deleteItemConfirm(id) {
 }
 
 onMounted(async () => {
+    loading.value = true;
     const {success, message, data} = await handlerResponse(fetchTechCards())
     setAlert(alertMessage, alertType, message, "error");
     if (success) {
@@ -59,6 +60,7 @@ onMounted(async () => {
             updated_at: formatDate(techCard.updated_at),
         }))
     }
+    loading.value = false;
 })
 </script>
 
@@ -72,6 +74,7 @@ onMounted(async () => {
         max-width="500">
     </v-alert>
     <w-table
+        :loading="loading"
         :headers="headers"
         :items="techCards"
         :editedItem="editedItem"
