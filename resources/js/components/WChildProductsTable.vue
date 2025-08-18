@@ -59,7 +59,6 @@ function save() {
     }
 
     if (editedItem.value.id !== null) {
-        console.log('xui')
         emit("updatedProduct", {id: editedItem.value.id, product: newProduct}, defaultProduct.value)
     } else {
         const duplicateProduct = props.defaultSelectedProducts.some(
