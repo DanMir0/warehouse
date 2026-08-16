@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0943736492514a4a9195de5ad0f4adc3",
+    "content-hash": "66f06f896bb481e65fae0e207cc2a917",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3661,6 +3661,58 @@
                 "source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v8.7.0"
             },
             "time": "2024-10-27T17:38:32+00:00"
+        },
+        {
+            "name": "saeedvir/supabase",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saeedvir/supabase.git",
+                "reference": "d775ffcc102dd9e4e46a07a94584c9604d157660"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saeedvir/supabase/zipball/d775ffcc102dd9e4e46a07a94584c9604d157660",
+                "reference": "d775ffcc102dd9e4e46a07a94584c9604d157660",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Supabase": "Saeedvir\\Supabase\\Facades\\Supabase"
+                    },
+                    "providers": [
+                        "Saeedvir\\Supabase\\SupabaseServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Saeedvir\\Supabase\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "saeedvir",
+                    "email": "saeedvirani@example.com"
+                }
+            ],
+            "description": "A Laravel package for integrating with Supabase services",
+            "support": {
+                "issues": "https://github.com/saeedvir/supabase/issues",
+                "source": "https://github.com/saeedvir/supabase/tree/v1.0"
+            },
+            "time": "2025-11-12T07:04:00+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8447,5 +8499,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
